@@ -1,0 +1,7 @@
+
+# Don't add anything that comes from building the project
+# (Projects should be built locally)
+
+*.d
+*.o
+*.axf
