@@ -1,0 +1,4 @@
+C:\Users\mateu\AppData\Roaming\SPB_Data\git\COMPENG-4DS4_Labs\Lab0\frdmk66f_Lab0_Problem5\drivers/fsl_ftm.h:700:20:FTM_StartTimer	24	static
+C:\Users\mateu\AppData\Roaming\SPB_Data\git\COMPENG-4DS4_Labs\Lab0\frdmk66f_Lab0_Problem5\drivers/fsl_ftm.h:996:20:FTM_SetSoftwareTrigger	16	static
+../source/hello_world.c:28:6:pwm_setup	72	static
+../source/hello_world.c:55:5:main	24	static
