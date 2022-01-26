@@ -65,23 +65,22 @@ int main(void)
 
     pwm_setup();
 
-    scanf("%x", &input);
+    while (1){
 
-    blue = ((float)(input & 0x0000FF)) / 0xFF * 100;
-    green = ((float)((input & 0x00FF00) >> 8)) / 0xFF * 100;
-    red = ((float)((input & 0xFF0000) >> 16)) / 0xFF * 100;
+        scanf("%x", &input);
 
-    PRINTF("blue - %d%%\r\n", blue);
-    PRINTF("green - %d%%\r\n", green);
-    PRINTF("red - %d%%\r\n", red);
+        blue = ((float)(input & 0x0000FF)) / 0xFF * 100;
+        green = ((float)((input & 0x00FF00) >> 8)) / 0xFF * 100;
+        red = ((float)((input & 0xFF0000) >> 16)) / 0xFF * 100;
 
-    FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_1, kFTM_EdgeAlignedPwm, red);
-    FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_4, kFTM_EdgeAlignedPwm, blue);
-    FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_5, kFTM_EdgeAlignedPwm, green);
+        PRINTF("blue\t- %d%%\r\n", blue);
+        PRINTF("green\t- %d%%\r\n", green);
+        PRINTF("red\t- %d%%\r\n", red);
 
-    FTM_SetSoftwareTrigger(FTM3, true);
+        FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_1, kFTM_EdgeAlignedPwm, red);
+        FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_4, kFTM_EdgeAlignedPwm, blue);
+        FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_5, kFTM_EdgeAlignedPwm, green);
 
-    while (1)
-    {
+        FTM_SetSoftwareTrigger(FTM3, true);
     }
 }
