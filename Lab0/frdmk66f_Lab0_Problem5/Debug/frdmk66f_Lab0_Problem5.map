@@ -3294,19 +3294,19 @@ LOAD linker stubs
  .debug_macro   0x0001ab05      0x153 ./board/clock_config.o
  .debug_macro   0x0001ac58      0x11e ./board/pin_mux.o
 
-.debug_line     0x00000000     0x72da
+.debug_line     0x00000000     0x727c
  .debug_line    0x00000000      0x3cf ./utilities/fsl_assert.o
  .debug_line    0x000003cf      0xa61 ./startup/startup_mk66f18.o
- .debug_line    0x00000e30      0x61c ./source/hello_world.o
- .debug_line    0x0000144c       0x59 ./source/semihost_hardfault.o
- .debug_line    0x000014a5     0x1864 ./drivers/fsl_clock.o
- .debug_line    0x00002d09      0xf6e ./drivers/fsl_ftm.o
- .debug_line    0x00003c77     0x1003 ./drivers/fsl_lpuart.o
- .debug_line    0x00004c7a     0x1490 ./drivers/fsl_uart.o
- .debug_line    0x0000610a      0x441 ./device/system_MK66F18.o
- .debug_line    0x0000654b      0x47c ./board/board.o
- .debug_line    0x000069c7      0x4e6 ./board/clock_config.o
- .debug_line    0x00006ead      0x42d ./board/pin_mux.o
+ .debug_line    0x00000e30      0x5be ./source/hello_world.o
+ .debug_line    0x000013ee       0x59 ./source/semihost_hardfault.o
+ .debug_line    0x00001447     0x1864 ./drivers/fsl_clock.o
+ .debug_line    0x00002cab      0xf6e ./drivers/fsl_ftm.o
+ .debug_line    0x00003c19     0x1003 ./drivers/fsl_lpuart.o
+ .debug_line    0x00004c1c     0x1490 ./drivers/fsl_uart.o
+ .debug_line    0x000060ac      0x441 ./device/system_MK66F18.o
+ .debug_line    0x000064ed      0x47c ./board/board.o
+ .debug_line    0x00006969      0x4e6 ./board/clock_config.o
+ .debug_line    0x00006e4f      0x42d ./board/pin_mux.o
 
 .debug_str      0x00000000    0xbcf1c
  .debug_str     0x00000000    0xb4eb1 ./utilities/fsl_assert.o
