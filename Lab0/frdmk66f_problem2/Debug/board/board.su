@@ -1,2 +1,2 @@
-C:\Users\mateu\Documents\MCUXpressoIDE_11.5.0_7232\workspace\frdmk66f_hello_world\utilities/fsl_debug_console.h:152:24:DbgConsole_Init	24	static
+C:\Users\mateu\AppData\Roaming\SPB_Data\git\COMPENG-4DS4_Labs\Lab0\frdmk66f_problem2\utilities/fsl_debug_console.h:152:24:DbgConsole_Init	24	static
 ../board/board.c:26:6:BOARD_InitDebugConsole	16	static

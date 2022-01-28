@@ -33,7 +33,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := frdmk66f_hello_world
+BUILD_ARTIFACT_NAME := frdmk66f_problem2
 BUILD_ARTIFACT_EXTENSION := axf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -45,24 +45,24 @@ all:
 	+@$(MAKE) --no-print-directory main-build && $(MAKE) --no-print-directory post-build
 
 # Main-build Target
-main-build: frdmk66f_hello_world.axf
+main-build: frdmk66f_problem2.axf
 
 # Tool invocations
-frdmk66f_hello_world.axf: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+frdmk66f_problem2.axf: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU Linker'
-	arm-none-eabi-gcc -nostdlib -Xlinker -Map="frdmk66f_hello_world.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -Xlinker --sort-section=alignment -Xlinker --cref -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T frdmk66f_hello_world_Debug.ld -o "frdmk66f_hello_world.axf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -nostdlib -Xlinker -Map="frdmk66f_problem2.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -Xlinker --sort-section=alignment -Xlinker --cref -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T "frdmk66f_problem2_Debug.ld" -o "frdmk66f_problem2.axf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) frdmk66f_hello_world.axf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) frdmk66f_problem2.axf
 	-@echo ' '
 
 post-build:
 	-@echo 'Performing post-build steps'
-	-arm-none-eabi-size "frdmk66f_hello_world.axf"; # arm-none-eabi-objcopy -v -O binary "frdmk66f_hello_world.axf" "frdmk66f_hello_world.bin" ; # checksum -p MK66FN2M0xxx18 -d "frdmk66f_hello_world.bin";
+	-arm-none-eabi-size "frdmk66f_problem2.axf"; # arm-none-eabi-objcopy -v -O binary "frdmk66f_problem2.axf" "frdmk66f_problem2.bin" ; # checksum -p MK66FN2M0xxx18 -d "frdmk66f_problem2.bin";
 	-@echo ' '
 
 .PHONY: all clean dependents post-build
