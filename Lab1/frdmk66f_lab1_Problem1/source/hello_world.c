@@ -16,8 +16,11 @@
 #define FTM_MOTOR	FTM0
 #define FTM_CHANNEL_DC_MOTOR   kFTM_Chnl_0
 
-/*for servo motor*/
-#define FTM_CHANNEL_SERVO_MOTOR
+/*problem1*/
+
+
+#define FTM_CHANNEL_SERVO_MOTOR kFTM_Chnl_3
+
 
 
 
@@ -79,17 +82,37 @@ void setupPWM()
 	FTM_StartTimer(FTM_MOTOR, kFTM_SystemClock);
 }
 
+void setupPWM_SERVO()
+{
+	ftm_config_t ftmInfo;
+	ftm_chnl_pwm_signal_param_t ftmParam;
+	ftm_pwm_level_select_t pwmLevel = kFTM_HighTrue;
+	ftmParam.chnlNumber = FTM_CHANNEL_SERVO_MOTOR;
+	ftmParam.level = pwmLevel;
+	ftmParam.dutyCyclePercent = 7;
+	ftmParam.firstEdgeDelayPercent = 0U;
+	ftmParam.enableComplementary = false;
+	ftmParam.enableDeadtime = false;
+	FTM_GetDefaultConfig(&ftmInfo);
+	ftmInfo.prescale = kFTM_Prescale_Divide_128;
+	FTM_Init(FTM_MOTOR, &ftmInfo);
+	FTM_SetupPwm(FTM_MOTOR, &ftmParam, 1U, kFTM_EdgeAlignedPwm, 50U, CLOCK_GetFreq(
+	kCLOCK_BusClk));
+	FTM_StartTimer(FTM_MOTOR, kFTM_SystemClock);
+}
+
 int main(void)
 {
 
     uint8_t ch;
-    int input;
-    float dutyCycle;
+    int input_DC, input_SERVO;
+    float dutyCycle_DC, dutyCycle_SERVO;
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
 
-     setupPWM();
+    setupPWM();
+    setupPWM_SERVO();
 
 
      /******* Delay *******/
@@ -102,10 +125,12 @@ int main(void)
 
      printf("Input motor ratio\n");
      //scanf("%d", &input);
-     input = 0;
-     dutyCycle = input * 0.025f/100.0f + 0.0615;
-     updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
-
+     input_DC = 0;
+     input_SERVO = 0;
+     dutyCycle_DC = input_DC * 0.025f/100.0f + 0.0615;
+     dutyCycle_SERVO = input_SERVO * 0.025f/100.0f + 0.075;
+     updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle_DC);
+     updatePWM_dutyCycle(FTM_CHANNEL_SERVO_MOTOR, dutyCycle_SERVO);
      FTM_SetSoftwareTrigger(FTM_MOTOR, true);
 
      printf("your motor moving");

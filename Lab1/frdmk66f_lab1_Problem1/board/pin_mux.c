@@ -64,8 +64,12 @@ void BOARD_InitPins(void)
 	CLOCK_EnableClock(kCLOCK_PortC);
 	PORT_SetPinMux(PORTC,1U, kPORT_MuxAlt4);
 
+
+
 	/* Port A Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortA);
+    PORT_SetPinMux(PORTA,6U, kPORT_MuxAlt3);
+
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
 
