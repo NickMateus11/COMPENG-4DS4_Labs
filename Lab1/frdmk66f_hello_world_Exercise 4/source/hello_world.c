@@ -93,6 +93,7 @@ status_t SPI_write(uint8_t regAddress, uint8_t value){
 	masterTxData[2] = value; //set value
 
 	masterXfer.txData = masterTxData;
+	masterXfer.rxData = NULL;
 	masterXfer.dataSize = 3;
 	masterXfer.configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 |
 		kDSPI_MasterPcsContinuous;
