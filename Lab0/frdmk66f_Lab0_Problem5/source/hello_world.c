@@ -71,9 +71,9 @@ int main(void)
     green = ((float)((input & 0x00FF00) >> 8)) / 0xFF * 100;
     red = ((float)((input & 0xFF0000) >> 16)) / 0xFF * 100;
 
-    PRINTF("blue - %d%%\r\n", blue);
-    PRINTF("green - %d%%\r\n", green);
-    PRINTF("red - %d%%\r\n", red);
+    PRINTF("blue\t- %d%%\r\n", blue);
+    PRINTF("green\t- %d%%\r\n", green);
+    PRINTF("red\t- %d%%\r\n", red);
 
     FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_1, kFTM_EdgeAlignedPwm, red);
     FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_4, kFTM_EdgeAlignedPwm, blue);
@@ -81,7 +81,5 @@ int main(void)
 
     FTM_SetSoftwareTrigger(FTM3, true);
 
-    while (1)
-    {
-    }
+    while (1);
 }

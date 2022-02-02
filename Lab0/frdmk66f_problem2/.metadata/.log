@@ -1,0 +1,15 @@
+!SESSION 2022-01-19 21:02:03.666 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=11.0.11
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_CA
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -data C:\Users\mateu\Documents\MCUXpressoIDE_11.5.0_7232\workspace\frdmk66f_hello_world
+
+!ENTRY com.nxp.mcuxpresso.core.datamodels 1 0 2022-01-19 21:02:18.381
+!MESSAGE Recreating part support. No part support available.
+
+!ENTRY com.nxp.mcuxpresso.core.datamodels 1 0 2022-01-19 21:02:23.118
+!MESSAGE The device 'MK66FN2M0xxx18' (version='1.0.0') from SDK 'SDK_2.x_MK26FN2M0xxx18' (version='2.11.0', build='epluginsite519 2022-01-17') will be installed.
+
+!ENTRY com.nxp.mcuxpresso.core.datamodels 1 0 2022-01-19 21:02:24.542
+!MESSAGE The device 'MK26FN2M0xxx18' (version='1.0.0') from SDK 'SDK_2.x_MK26FN2M0xxx18' (version='2.11.0', build='epluginsite519 2022-01-17') will be installed.
