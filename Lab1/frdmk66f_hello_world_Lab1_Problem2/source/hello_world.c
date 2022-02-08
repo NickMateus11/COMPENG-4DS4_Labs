@@ -54,7 +54,7 @@ int main(void)
 
     setupUART();
     PRINTF("%s", txbuff);
-    for (int i=0; i<5; i++)
+    for (int i=0; i<10; i++)
     	UART_WriteBlocking(TARGET_UART, txbuff, sizeof(txbuff) - 1);
 
     while (1)
