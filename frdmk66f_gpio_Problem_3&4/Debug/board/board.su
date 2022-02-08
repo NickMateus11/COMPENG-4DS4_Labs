@@ -1,2 +1,0 @@
-C:\Users\halo3\git\COMPENG-4DS4_Labs\frdmk66f_gpio_Problem_3&4\utilities/fsl_debug_console.h:152:24:DbgConsole_Init	24	static
-../board/board.c:26:6:BOARD_InitDebugConsole	16	static
