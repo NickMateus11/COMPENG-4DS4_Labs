@@ -42,6 +42,11 @@ void setupUART()
  * @brief Main function
  */
 
+void delay(void){
+	for (int i=0; i< 800000; i++){
+		__asm("NOP"); /* delay */
+	}
+}
 
 int main(void)
 {
@@ -53,9 +58,11 @@ int main(void)
     BOARD_InitDebugConsole();
 
     setupUART();
-    PRINTF("%s", txbuff);
-    for (int i=0; i<10; i++)
+    //PRINTF("%s", txbuff);
+    for (int i=0; i<5; i++){
     	UART_WriteBlocking(TARGET_UART, txbuff, sizeof(txbuff) - 1);
+    	delay(); printf("Sent: %s", txbuff);
+    }
 
     while (1)
     {
