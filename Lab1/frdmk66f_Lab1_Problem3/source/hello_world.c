@@ -44,6 +44,12 @@ void UART4_RX_TX_IRQHandler()
 	new_char = 1;
 }
 
+void delay(void){
+	for (int i=0; i< 800000; i++){
+		__asm("NOP"); /* delay */
+	}
+}
+
 /*!
  * @brief Main function
  */
@@ -58,10 +64,12 @@ int main(void)
 
     setupUART();
 
-    PRINTF("%s", txbuff);
-    for (int i=0; i<10; i++)
+    //PRINTF("%s", txbuff);
+    // Send multiple times - hopefully RF is stable enough
+    for (int i=0; i<5; i++){
     	UART_WriteBlocking(TARGET_UART, txbuff, sizeof(txbuff) - 1);
-
+    	delay(); printf("Sent: %s", txbuff);
+    }
     while (1)
     {
 		if(new_char)
