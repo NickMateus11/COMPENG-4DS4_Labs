@@ -151,58 +151,52 @@ int main(void)
     	delay(); printf("Sent: %s", txbuff);
     }
 
-    char input[8];
-    int i = 0;
-    printf("Enter servo angle into terminal (-100, 100)\n");
     while (1){
-		if(new_char)
-		{
-			new_char = 0;
-			PUTCHAR(ch);
 
-			input[i++] = ch;
+		char input[8];
+		int i = 0;
+		printf("Enter servo angle into terminal (-100, 100)\n");
+		while (1){
+			if(new_char)
+			{
+				new_char = 0;
+				PUTCHAR(ch);
 
-			if (ch==13){ // newline
-				break;
+				input[i++] = ch;
+
+				if (ch==13){ // newline
+					break;
+				}
 			}
 		}
-    }
-    input_SERVO = atoi(input);
-    printf("SERVO Value: %d\n", input_SERVO);
+		input_SERVO = atoi(input);
+		printf("SERVO Value: %d\n", input_SERVO);
 
-    dutyCycle_SERVO = input_SERVO * 0.025f/100.0f + 0.075;
-    updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle_DC);
-    FTM_SetSoftwareTrigger(FTM_MOTOR, true);
+		dutyCycle_SERVO = input_SERVO * 0.025f/100.0f + 0.075;
+		updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle_DC);
+		FTM_SetSoftwareTrigger(FTM_MOTOR, true);
 
-    printf("Enter motor speed into terminal (-100, 100)\n");
+		printf("Enter motor speed into terminal (-100, 100)\n");
 
-    i = 0;
-    while (1){
-		if(new_char)
-		{
-			new_char = 0;
-			PUTCHAR(ch);
+		i = 0;
+		while (1){
+			if(new_char)
+			{
+				new_char = 0;
+				PUTCHAR(ch);
 
-			input[i++] = ch;
+				input[i++] = ch;
 
-			if (ch==13){
-				break;
+				if (ch==13){
+					break;
+				}
 			}
 		}
+		input_DC = atoi(input);
+		printf("MOTOR Value: %d\n", input_DC);
+
+		dutyCycle_DC = input_DC * 0.025f/100.0f + 0.0615;
+		updatePWM_dutyCycle(FTM_CHANNEL_SERVO_MOTOR, dutyCycle_SERVO);
+		FTM_SetSoftwareTrigger(FTM_MOTOR, true);
     }
-    input_DC = atoi(input);
-    printf("MOTOR Value: %d\n", input_DC);
-
-	dutyCycle_DC = input_DC * 0.025f/100.0f + 0.0615;
-	updatePWM_dutyCycle(FTM_CHANNEL_SERVO_MOTOR, dutyCycle_SERVO);
-	FTM_SetSoftwareTrigger(FTM_MOTOR, true);
-
-    while (1)
-    {
-		if(new_char)
-		{
-			new_char = 0;
-			PUTCHAR(ch);
-		}
-	}
 }
