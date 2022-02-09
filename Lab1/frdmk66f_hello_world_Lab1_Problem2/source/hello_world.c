@@ -68,5 +68,6 @@ int main(void)
     {
     	UART_ReadBlocking(TARGET_UART, &ch, 1);
     	PUTCHAR(ch);
+    	printf("Char: %d\n",ch);
     }
 }
