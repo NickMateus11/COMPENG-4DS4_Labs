@@ -60,12 +60,20 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
+	//UART
 	CLOCK_EnableClock(kCLOCK_PortC);
 	 PORT_SetPinMux(PORTC, 14U, kPORT_MuxAlt3);
 	 PORT_SetPinMux(PORTC, 13U, kPORT_MuxAlt3);
 	 PORT_SetPinMux(PORTC, 15U, kPORT_MuxAlt3);
 	 CLOCK_EnableClock(kCLOCK_PortE);
 	 PORT_SetPinMux(PORTE, 27U, kPORT_MuxAlt3);
+
+	 //DC motor
+	 PORT_SetPinMux(PORTC,1U, kPORT_MuxAlt4);
+
+	 //Servo
+	 CLOCK_EnableClock(kCLOCK_PortA);
+	     PORT_SetPinMux(PORTA,6U, kPORT_MuxAlt3);
 
 	/* Port A Clock Gate Control: Clock enabled */
 }
