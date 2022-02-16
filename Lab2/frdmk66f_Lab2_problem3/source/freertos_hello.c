@@ -199,7 +199,7 @@ int main(void)
 	SemaphoreHandle_t *sem = (SemaphoreHandle_t *) malloc(sizeof(SemaphoreHandle_t));
 	sem[0] = xSemaphoreCreateBinary();
 
-	status = xTaskCreate(hello_task, "Hello_task", 200, sem, 3, NULL);
+	status = xTaskCreate(hello_task, "Hello_task", 200, sem, 2, NULL);
 	if (status != pdPASS)
 	{
 		PRINTF("Task creation failed!.\r\n");
