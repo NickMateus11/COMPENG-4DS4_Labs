@@ -21,10 +21,15 @@
 #include "clock_config.h"
 #include "board.h"
 
+EventGroupHandle_t event_group_global_handler;
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-
+#define LEFT_BIT (1 << 0)
+#define RIGHT_BIT (1 << 1)
+#define UP_BIT (1 << 2)
+#define DOWN_BIT (1 << 3)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -78,12 +83,46 @@ void UART4_RX_TX_IRQHandler() {
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+void consumer_event(void *pvParameters) {
+	EventGroupHandle_t event_group = (EventGroupHandle_t) pvParameters;
+	EventBits_t bits;
+
+	while (1) {
+		bits = xEventGroupWaitBits(
+					event_group,
+					LEFT_BIT | RIGHT_BIT | UP_BIT | DOWN_BIT,
+					pdTRUE,
+					pdFALSE,
+					portMAX_DELAY);
+
+		if ((bits & LEFT_BIT) == LEFT_BIT) {
+			PRINTF("Left\r\n");
+		}
+		if ((bits & RIGHT_BIT) == RIGHT_BIT) {
+			PRINTF("Right\r\n");
+		}
+		if ((bits & UP_BIT) == UP_BIT) {
+			PRINTF("Up\r\n");
+		}
+		if ((bits & DOWN_BIT) == DOWN_BIT) {
+			PRINTF("Down\r\n");
+		}
+	}
+}
+
+void delay(void){
+	for (int i=0; i< 800000; i++){
+		__asm("NOP"); /* delay */
+	}
+}
+
 /*!
  * @brief Application entry point.
  */
 int main(void) {
 
 	BaseType_t status;
+//	char txbuff[] = "Hello World\r\n";
 
 	/* Init board hardware. */
 	BOARD_InitBootPins();
@@ -92,17 +131,23 @@ int main(void) {
 
 	setupUART();
 
+//	for (int i=0; i<5; i++){
+//		UART_WriteBlocking(TARGET_UART, txbuff, sizeof(txbuff) - 1);
+//		delay();
+//		printf("Sent: %s", txbuff);
+//	}
+
 	event_group_global_handler = xEventGroupCreate();
 	status = xTaskCreate(consumer_event, "consumer", 200,
 			(void*) event_group_global_handler, 3, NULL);
 
-	if (status != pdPASS) {
+	if (status != pdPASS)
+	{
 		PRINTF("Task creation failed!.\r\n");
-		while (1)
-			;
+		while (1);
 	}
 
 	vTaskStartScheduler();
 	while (1)
-		;
+	{}
 }
