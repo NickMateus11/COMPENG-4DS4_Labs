@@ -11,6 +11,7 @@
 #include "task.h"
 #include "queue.h"
 #include "timers.h"
+#include "semphr.h"
 
 /* Freescale includes. */
 #include "fsl_device_registers.h"
@@ -19,6 +20,7 @@
 #include "clock_config.h"
 #include "board.h"
 
+SemaphoreHandle_t semaphore;
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -28,15 +30,22 @@
  ******************************************************************************/
 
 void timerCallbackFunction(TimerHandle_t timer_handle) {
-	PRINTF("Hello from the single shot timer callback.\r\n");
+	xSemaphoreGive(semaphore);
 }
 
-void timerCallbackFunction2(TimerHandle_t timer_handle) {
-	static int counter = 0;
-	PRINTF("Hello from the periodic timer callback. Counter = %d\r\n", counter);
-	counter++;
-	if (counter >= 10)
-		xTimerStop(timer_handle, 0);
+void hello_task(void* pvParameters){
+
+	BaseType_t status;
+
+	while(1){
+		status = xSemaphoreTake(semaphore, portMAX_DELAY);
+		if (status != pdPASS)
+		{
+		PRINTF("Failed to acquire semaphore\r\n");
+		while (1);
+		}
+		PRINTF("Semaphore has been received\r\n");
+	}
 }
 
 /*!
@@ -50,28 +59,17 @@ int main(void) {
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
 	BOARD_InitDebugConsole();
+	semaphore = xSemaphoreCreateBinary();
 
-	status = xTaskCreate(hello_task, "Hello_task", 200, NULL, 2, NULL);
+
+	status = xTaskCreate(hello_task, "Hello_task", 200, (void*)semaphore, 2, NULL);
 	if (status != pdPASS) {
 		PRINTF("Task creation failed!.\r\n");
 		while (1);
 	}
 
-	TimerHandle_t timer_handle = xTimerCreate("Single Shot timer",
-			5000 / portTICK_PERIOD_MS,
-			pdFALSE,
-			NULL, timerCallbackFunction);
+	TimerHandle_t timer_handle = xTimerCreate("Periodic timer", 1000 / portTICK_PERIOD_MS, pdTRUE, (void*)semaphore, timerCallbackFunction);
 	status = xTimerStart(timer_handle, 0);
-	if (status != pdPASS) {
-		PRINTF("Couldn’t start the timer!.\r\n");
-		while (1);
-	}
-
-	TimerHandle_t timer_handle2 = xTimerCreate("Periodic timer",
-			1000 / portTICK_PERIOD_MS,
-			pdTRUE,
-			NULL, timerCallbackFunction2);
-	status = xTimerStart(timer_handle2, 0);
 	if (status != pdPASS) {
 		PRINTF("Couldn’t start the timer!.\r\n");
 		while (1);
