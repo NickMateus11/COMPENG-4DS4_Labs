@@ -156,7 +156,7 @@ void hello_task2(void *pvParameters)
 	{
 		BaseType_t status = xSemaphoreTake(*((SemaphoreHandle_t*)pvParameters), 0);
 		if (status == pdPASS) {
-			PRINTF("%s.\r\n", str);
+			PRINTF("%s\r\n", str);
 			xSemaphoreGive(*((SemaphoreHandle_t*)pvParameters));
 		}
 //		else {
@@ -178,7 +178,7 @@ void hello_task3(void *pvParameters)
 		    while(*p)
 		    	s[i++] = toupper(*(p++));
 		    s[i] = *p; // termination char
-			PRINTF("%s.\r\n", s);
+			PRINTF("%s\r\n", s);
 			xSemaphoreGive(*((SemaphoreHandle_t*)pvParameters));
 		}
 //		else {
