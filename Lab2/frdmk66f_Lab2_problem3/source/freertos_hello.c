@@ -141,7 +141,6 @@ int main(void) {
 #include "board.h"
 
 char str[16];
-//SemaphoreHandle_t sem;
 
 void hello_task(void *pvParameters)
 {
@@ -159,9 +158,10 @@ void hello_task2(void *pvParameters)
 		if (status == pdPASS) {
 			PRINTF("%s.\r\n", str);
 			xSemaphoreGive(*((SemaphoreHandle_t*)pvParameters));
-		} else {
-			PRINTF("Failed to acquire consumer_semaphore\r\n");
 		}
+//		else {
+//			PRINTF("Failed to acquire consumer_semaphore\r\n");
+//		}
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 }
@@ -180,9 +180,10 @@ void hello_task3(void *pvParameters)
 		    s[i] = *p; // termination char
 			PRINTF("%s.\r\n", s);
 			xSemaphoreGive(*((SemaphoreHandle_t*)pvParameters));
-		} else {
-			PRINTF("Failed to acquire consumer_semaphore\r\n");
 		}
+//		else {
+//			PRINTF("Failed to acquire consumer_semaphore\r\n");
+//		}
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 }
