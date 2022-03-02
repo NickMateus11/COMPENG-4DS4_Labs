@@ -19,14 +19,17 @@
 #include "clock_config.h"
 #include "board.h"
 
+
+#define STR_LEN		16
+
 void hello_task(void *pvParameters)
 {
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
-	char* str;
 	PRINTF("Type string\r\n");
-	scanf("%s",&str);
-	status = xQueueSendToBack(queue1, (void*) &str, portMAX_DELAY);
+	char str[STR_LEN];
+	scanf("%s",str);
+	status = xQueueSendToBack(queue1, (void*) str, portMAX_DELAY);
 	if (status != pdPASS)
 	{
 		PRINTF("Queue Send failed!.\r\n");
@@ -40,8 +43,8 @@ void hello_task2(void *pvParameters)
 {
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
-	char* string;
-	status = xQueueReceive(queue1, (void *) &string, portMAX_DELAY);
+	char string[STR_LEN];
+	status = xQueueReceive(queue1, (void *) string, portMAX_DELAY);
 	if (status != pdPASS)
 	{
 		PRINTF("Queue Receive failed!.\r\n");
@@ -49,7 +52,7 @@ void hello_task2(void *pvParameters)
 	}
 	while(1)
 	{
-		PRINTF("Hello %s.\r\n", &string);
+		PRINTF("String: %s\r\n", string);
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 
 	}
@@ -63,7 +66,7 @@ int main(void)
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
 	BOARD_InitDebugConsole();
-	QueueHandle_t queue1 = xQueueCreate(1, sizeof(int));
+	QueueHandle_t queue1 = xQueueCreate(1, sizeof(char)*STR_LEN);
 	if (queue1 == NULL)
 	{
 		PRINTF("Queue creation failed!.\r\n");
