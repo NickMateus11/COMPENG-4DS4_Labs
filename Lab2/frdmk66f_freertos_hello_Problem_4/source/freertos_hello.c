@@ -85,18 +85,13 @@ int main(void)
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
 	BOARD_InitDebugConsole();
-
 	EventGroupHandle_t event_group = xEventGroupCreate();
-
-
-
 	status = xTaskCreate(producer_sem, "producer", 200, (void*)event_group, 2, NULL);
 	if (status != pdPASS)
 	{
 		PRINTF("Task creation failed!.\r\n");
 		while (1);
 	}
-
 	status = xTaskCreate(consumer1_sem, "consumer", 200, (void*)event_group, 3, NULL);
 
 	if (status != pdPASS)
@@ -104,7 +99,6 @@ int main(void)
 		PRINTF("Task creation failed!.\r\n");
 		while (1);
 	}
-
 	status = xTaskCreate(consumer2_sem, "consumer", 200, (void*)event_group, 3, NULL);
 
 	if (status != pdPASS)
