@@ -24,7 +24,7 @@ void setupRCReceiverComponent()
 
     /*************** RC Task ***************/
 	//Create RC Semaphore
-	SemaphoreHandle_t* rc_hold_semaphore = (SemaphoreHandle_t*) malloc(1 * sizeof(SemaphoreHandle_t));
+	rc_hold_semaphore = (SemaphoreHandle_t*) malloc(1 * sizeof(SemaphoreHandle_t));
 	rc_hold_semaphore = xSemaphoreCreateBinary();
 
 	//Create RC Task
