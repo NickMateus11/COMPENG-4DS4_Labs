@@ -3,10 +3,6 @@
 EventGroupHandle_t event_group;
 QueueHandle_t uart_queue;
 
-#define LEFT_BIT (1 << 0)
-#define RIGHT_BIT (1 << 1)
-#define UP_BIT (1 << 2)
-#define DOWN_BIT (1 << 3)
 
 void setupTerminalComponent()
 {
@@ -45,6 +41,12 @@ void setupTerminalComponent()
 void setupTerminalPins()
 {
     //Configure UART pins
+	CLOCK_EnableClock(kCLOCK_PortC);
+	PORT_SetPinMux(PORTC, 14U, kPORT_MuxAlt3);
+	PORT_SetPinMux(PORTC, 13U, kPORT_MuxAlt3);
+	PORT_SetPinMux(PORTC, 15U, kPORT_MuxAlt3);
+	CLOCK_EnableClock(kCLOCK_PortE);
+	PORT_SetPinMux(PORTE, 27U, kPORT_MuxAlt3);
 }
 
 void sendMessage(const char *format, ...)
@@ -142,6 +144,7 @@ void terminalControlTask(void* pvParameters)
 						pdTRUE,
 						pdFALSE,
 						portMAX_DELAY);
+
 
 			if ((bits & LEFT_BIT) == LEFT_BIT) {
 				PRINTF("Left\r\n");
