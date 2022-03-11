@@ -2,8 +2,24 @@
 
 EventGroupHandle_t event_group;
 QueueHandle_t uart_queue;
-
-
+TimerHandle_t timer_handle;
+void timerCallbackFunction(TimerHandle_t timer_handle) {
+	BaseType_t status;
+	int val_to_send = 0;
+	status = xQueueSend(angle_queue,(void*)val_to_send,portMAX_DELAY);
+	if (status != pdPASS)
+	{
+		PRINTF("QueueSend failed!.\r\n");
+		while (1);
+	}
+	status = xQueueSend(motor_queue,(void*)val_to_send,portMAX_DELAY);
+	if (status != pdPASS)
+	{
+		PRINTF("QueueSend failed!.\r\n");
+		while (1);
+	}
+	xSemaphoreGive(rc_hold_semaphore);
+}
 void setupTerminalComponent()
 {
 	BaseType_t status;
@@ -25,6 +41,8 @@ void setupTerminalComponent()
         PRINTF("Task creation failed!.\r\n");
         while (1);
     }
+    timer_handle = xTimerCreate("Periodic timer", 1000 / portTICK_PERIOD_MS, pdFALSE, (void*)0, timerCallbackFunction);
+
 
     /*************** Terminal Control Task ***************/
     //Create Event groups
@@ -131,33 +149,75 @@ void UART4_RX_TX_IRQHandler()
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+
 void terminalControlTask(void* pvParameters)
 {
 	//Terminal Control Task implementation
 	EventGroupHandle_t event_group = (EventGroupHandle_t) pvParameters;
-		EventBits_t bits;
+	EventBits_t bits;
+	BaseType_t status;
+	int val_to_send;
+	while (1) {
+		bits = xEventGroupWaitBits(event_group, LEFT_BIT | RIGHT_BIT | UP_BIT | DOWN_BIT, pdTRUE, pdFALSE,	portMAX_DELAY);
 
-		while (1) {
-			bits = xEventGroupWaitBits(
-						event_group,
-						LEFT_BIT | RIGHT_BIT | UP_BIT | DOWN_BIT,
-						pdTRUE,
-						pdFALSE,
-						portMAX_DELAY);
+		if(xTimerIsTimerActive(timer_handle) == pdFALSE){
+			status = xSemaphoreTake(rc_hold_semaphore,portMAX_DELAY);
+				if (status != pdPASS)
+				{
+					PRINTF("Couldn't take hold semaphore!.\r\n");
+					while (1);
+				}
+		}
+
+		status = xTimerReset(timer_handle,portMAX_DELAY);
+		if (status != pdPASS)
+		{
+			PRINTF("timer failed to start!.\r\n");
+			while (1);
+		}
 
 
-			if ((bits & LEFT_BIT) == LEFT_BIT) {
-				PRINTF("Left\r\n");
-			}
-			if ((bits & RIGHT_BIT) == RIGHT_BIT) {
-				PRINTF("Right\r\n");
-			}
-			if ((bits & UP_BIT) == UP_BIT) {
-				PRINTF("Up\r\n");
-			}
-			if ((bits & DOWN_BIT) == DOWN_BIT) {
-				PRINTF("Down\r\n");
+		if ((bits & LEFT_BIT) == LEFT_BIT) {
+			PRINTF("Left\r\n");
+			val_to_send = 100;
+			status = xQueueSend(angle_queue,(void*)val_to_send,portMAX_DELAY);
+			if (status != pdPASS)
+			{
+				PRINTF("QueueSend failed!.\r\n");
+				while (1);
 			}
 		}
+		if ((bits & RIGHT_BIT) == RIGHT_BIT) {
+			PRINTF("Right\r\n");
+			val_to_send = -100;
+			status = xQueueSend(angle_queue,(void*)val_to_send,portMAX_DELAY);
+			if (status != pdPASS)
+			{
+				PRINTF("QueueSend failed!.\r\n");
+				while (1);
+			}
+		}
+		if ((bits & UP_BIT) == UP_BIT) {
+			PRINTF("Up\r\n");
+			val_to_send = 50;
+			status = xQueueSend(motor_queue,(void*)val_to_send,portMAX_DELAY);
+			if (status != pdPASS)
+			{
+				PRINTF("QueueSend failed!.\r\n");
+				while (1);
+			}
+		}
+		if ((bits & DOWN_BIT) == DOWN_BIT) {
+			PRINTF("Down\r\n");
+			val_to_send = 50;
+			status = xQueueSend(motor_queue,(void*)val_to_send,portMAX_DELAY);
+			if (status != pdPASS)
+			{
+				PRINTF("QueueSend failed!.\r\n");
+				while (1);
+			}
+		}
+
+	}
 
 }
