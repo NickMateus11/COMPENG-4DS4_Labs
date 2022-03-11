@@ -123,6 +123,7 @@ void motorTask(void* pvParameters)
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
 	int motor_value;
+	float dutyCycle;
 
 	while(1)
 	{
@@ -137,7 +138,7 @@ void motorTask(void* pvParameters)
 		dutyCycle = motor_value * 0.025f/100.0f + 0.0615;
 		updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
 
-		FTM_SetSoftwareTrigger(FTM_MOTOR, true);
+		FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 		PRINTF("Received Value = %d\r\n", motor_value);
 	}
 }
@@ -148,6 +149,7 @@ void positionTask(void* pvParameters)
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
 	int angle_value;
+	float dutyCycle;
 
 	while(1)
 	{
@@ -161,7 +163,7 @@ void positionTask(void* pvParameters)
 		dutyCycle = angle_value * 0.025f/100.0f + 0.075;
 		updatePWM_dutyCycle(FTM_CHANNEL_SERVO, dutyCycle);
 
-		FTM_SetSoftwareTrigger(FTM_MOTOR, true);
+		FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 		PRINTF("Received Value = %d\r\n", angle_value);
 	}
 }
