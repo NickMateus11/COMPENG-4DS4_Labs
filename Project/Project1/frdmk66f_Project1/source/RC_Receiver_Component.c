@@ -80,12 +80,12 @@ void rcTask(void* pvParameters)
 
 	while(1)
 	{
-		status = xSemaphoreTake(hold_semaphore, portMAX_DELAY);
-		if (status != pdPASS)
-		{
-			PRINTF("Failed to acquire hold_semaphore\r\n");
-			while (1);
-		}
+//		status = xSemaphoreTake(hold_semaphore, portMAX_DELAY);
+//		if (status != pdPASS)
+//		{
+//			PRINTF("Failed to acquire hold_semaphore\r\n");
+//			while (1);
+//		}
 
 		UART_ReadBlocking(UART1, ptr, 1);
 		if(*ptr != 0x20)
@@ -124,7 +124,7 @@ void rcTask(void* pvParameters)
 //			printf("Channel 7 = %d\t", rc_values.ch7);
 //			printf("Channel 8 = %d\r\n", rc_values.ch8);
 		}
-		xSemaphoreGive(hold_semaphore);
+//		xSemaphoreGive(hold_semaphore);
 	}
 }
 

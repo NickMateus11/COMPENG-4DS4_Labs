@@ -16,8 +16,8 @@ int main(void)
     /* Init board hardware. */
     BOARD_InitBootClocks();
 //
-//    setupMotorComponent();
-//    setupRCReceiverComponent();
+    setupMotorComponent();
+    setupRCReceiverComponent();
 //    setupTerminalComponent();
 //    setupLEDComponent();
 //    setupAccelerometerComponent();
