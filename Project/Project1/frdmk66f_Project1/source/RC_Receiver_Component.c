@@ -65,8 +65,8 @@ void rcTask(void* pvParameters)
 	RC_Values rc_values;
 	uint8_t* ptr = (uint8_t*) &rc_values;
 	int motor, angle, motor_prev, angle_prev;
-	motor_prev = 1500;
-	angle_prev = 1500;
+	motor_prev = 0;
+	angle_prev = 0;
 
 
 	while(1)
@@ -85,12 +85,15 @@ void rcTask(void* pvParameters)
 		UART_ReadBlocking(RC_UART, &ptr[1], sizeof(rc_values) - 1);
 		if(rc_values.header == 0x4020)
 		{
-//			if(motor != motor_prev){
+
+//			printf("Channel 2 = %d\t", rc_values.ch2);
+			if(rc_values.ch2 != motor_prev){
 				//right joy stick for forward/backward
 	//			printf("Channel 1 = %d\t", rc_values.ch1);
-				printf("Channel 2 = %d\t", rc_values.ch2);
+				printf("Channel 2 = %d\t\n", rc_values.ch2);
 				motor = (int)(rc_values.ch2 * 1.0f/5.0f - 300);
-//				motor_prev = motor;
+				printf("Channel 2 motor value = %d\t\n", motor);
+				motor_prev = rc_values.ch2;
 
 				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
 				if (status != pdPASS)
@@ -98,14 +101,24 @@ void rcTask(void* pvParameters)
 					PRINTF("Queue Send failed!.\r\n");
 					while (1);
 				}
-//			}
+			}else if(rc_values.ch2 == 1500){
+				motor = 0;
+				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
+				if (status != pdPASS)
+				{
+					PRINTF("Queue Send failed!.\r\n");
+					while (1);
+				}
+			}
 
-//			if(angle != angle_prev){
+
+//			printf("Channel 4 = %d and prev = %dt\n", rc_values.ch4,angle_prev);
+			if(rc_values.ch4 != angle_prev){
 				//left joy stick for left/right
 	//			printf("Channel 3 = %d\t", rc_values.ch3);
 				printf("Channel 4 = %d\t\n", rc_values.ch4);
 				angle = (int)(-1 * (rc_values.ch4 * 1.0f/5.0f - 300));
-//				angle_prev = angle;
+				angle_prev = rc_values.ch4;
 
 				status = xQueueSendToBack(angle_queue, (void*) &angle, portMAX_DELAY);
 				if (status != pdPASS)
@@ -113,7 +126,7 @@ void rcTask(void* pvParameters)
 					PRINTF("Queue Send failed!.\r\n");
 					while (1);
 				}
-//			}
+			}
 
 //			printf("Channel 5 = %d\t", rc_values.ch5);
 //			printf("Channel 6 = %d\t", rc_values.ch6);

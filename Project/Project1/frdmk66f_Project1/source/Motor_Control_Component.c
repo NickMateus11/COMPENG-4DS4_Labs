@@ -139,11 +139,13 @@ void motorTask(void* pvParameters)
 		}
 
 		if(motor_value != prev_value){
-			dutyCycle = motor_value * 0.025f/100.0f + 0.0615;
+			dutyCycle = (float)(motor_value * 0.025f/100.0f + 0.0705);
 			updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
 
-			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			PRINTF("Motor Value = %d\r\n", motor_value);
+			PRINTF("Motor dutyCycle = %d\r\n", (int)(dutyCycle*100));
+
+			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			prev_value = motor_value;
 		}
 	}
@@ -171,8 +173,9 @@ void positionTask(void* pvParameters)
 			dutyCycle = angle_value * 0.025f/100.0f + 0.075;
 			updatePWM_dutyCycle(FTM_CHANNEL_SERVO, dutyCycle);
 
-			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			PRINTF("Servo Value = %d\r\n", angle_value);
+
+			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			prev_value = angle_value;
 		}
 	}
