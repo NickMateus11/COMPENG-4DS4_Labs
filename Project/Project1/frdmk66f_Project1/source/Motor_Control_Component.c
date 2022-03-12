@@ -16,7 +16,7 @@ void setupMotorComponent()
 
     /*************** Motor Task ***************/
 	//Create Motor Queue
-	motor_queue = xQueueCreate(5, sizeof(int));
+	motor_queue = xQueueCreate(5, sizeof(msg_struct_t));
 
 	//Create Motor Task
 	status = xTaskCreate(motorTask, "motor", 200, (void*)motor_queue, 2, NULL);
@@ -155,28 +155,40 @@ void motorTask(void* pvParameters)
 	//lab2 queue consumer code
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
-	int motor_value, prev_value;
+	msg_struct_t motor_value;
+	int prev_value;
 	float dutyCycle;
 	prev_value = 0;
 
 	while(1)
 	{
-		status = xQueueReceive(queue1, (void *) &motor_value, portMAX_DELAY);
+		status = xQueueReceive(queue1, (void *) &motor_struct, portMAX_DELAY);
 		if (status != pdPASS)
 		{
 			PRINTF("Queue Receive failed!.\r\n");
 			while (1);
 		}
 
-		if(motor_value != prev_value){
-			dutyCycle = (float)(motor_value * 0.025f/100.0f + 0.0705);
+		if(motor_struct.type==0 && motor_struct.val != prev_value){
+			dutyCycle = (float)(motor_struct.val * 0.025f/100.0f + 0.0705);
 			updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
 
-			PRINTF("Motor Value = %d\r\n", motor_value);
+			PRINTF("Motor Value = %d\r\n", motor_struct.val);
 			PRINTF("Motor dutyCycle = %d\r\n", (int)(dutyCycle*100));
-			sendMessage("motor	 angle =%d\r\n", motor_value);
+			sendMessage("motor	 angle =%d\r\n", motor_struct.val);
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
-			prev_value = motor_value;
+			prev_value = motor_struct.val;
+		}
+		else if (motor_struct.type==1) { //compensation
+			int compensated_val = prev_value + motor_struct.val;
+			dutyCycle = (float)(compensated_val * 0.025f/100.0f + 0.0705);
+			updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
+
+			PRINTF("COMPENSATING: %d", motor_struct.val);
+			PRINTF("Motor Value = %d\r\n", compensated_val);
+			PRINTF("Motor dutyCycle = %d\r\n", (int)(dutyCycle*100));
+			sendMessage("motor value =%d\r\n", compensated_val);
+			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 		}
 	}
 }

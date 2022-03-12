@@ -6,13 +6,14 @@ TimerHandle_t timer_handle;
 void timerCallbackFunction(TimerHandle_t timer_handle) {
 	BaseType_t status;
 	int val_to_send = 0;
+	msg_struct_t motor_msg = {.type=0, .val=val_to_send};
 	status = xQueueSendToBack(angle_queue,(void*)&val_to_send,portMAX_DELAY);
 	if (status != pdPASS)
 	{
 		PRINTF("QueueSend failed!.\r\n");
 		while (1);
 	}
-	status = xQueueSendToBack(motor_queue,(void*)&val_to_send,portMAX_DELAY);
+	status = xQueueSendToBack(motor_queue,(void*)&motor_msg,portMAX_DELAY);
 	if (status != pdPASS)
 	{
 		PRINTF("QueueSend failed!.\r\n");
@@ -157,6 +158,7 @@ void terminalControlTask(void* pvParameters)
 	EventBits_t bits;
 	BaseType_t status;
 	int val_to_send;
+	msg_struct_t motor_msg = {.type=0, .val=0};
 	while (1) {
 		bits = xEventGroupWaitBits(event_group, LEFT_BIT | RIGHT_BIT | UP_BIT | DOWN_BIT, pdTRUE, pdFALSE,	portMAX_DELAY);
 
@@ -200,7 +202,8 @@ void terminalControlTask(void* pvParameters)
 		if ((bits & UP_BIT) == UP_BIT) {
 			PRINTF("Up\r\n");
 			val_to_send = 50;
-			status = xQueueSendToBack(motor_queue,(void*)&val_to_send,portMAX_DELAY);
+			motor_msg.val = val_to_send;
+			status = xQueueSendToBack(motor_queue,(void*)&motor_msg,portMAX_DELAY);
 			if (status != pdPASS)
 			{
 				PRINTF("QueueSend failed!.\r\n");
@@ -210,7 +213,8 @@ void terminalControlTask(void* pvParameters)
 		if ((bits & DOWN_BIT) == DOWN_BIT) {
 			PRINTF("Down\r\n");
 			val_to_send = 50;
-			status = xQueueSendToBack(motor_queue,(void*)&val_to_send,portMAX_DELAY);
+			motor_msg.val = val_to_send;
+			status = xQueueSendToBack(motor_queue,(void*)&motor_msg,portMAX_DELAY);
 			if (status != pdPASS)
 			{
 				PRINTF("QueueSend failed!.\r\n");

@@ -67,7 +67,8 @@ void rcTask(void* pvParameters)
 	BaseType_t status;
 	RC_Values rc_values;
 	uint8_t* ptr = (uint8_t*) &rc_values;
-	int motor, angle, motor_prev, angle_prev;
+	msg_struct_t motor = {.type=0, .val=0};
+	int angle, motor_prev, angle_prev;
 	motor_prev = 0;
 	angle_prev = 0;
 
@@ -98,8 +99,8 @@ void rcTask(void* pvParameters)
 				//right joy stick for forward/backward
 	//			printf("Channel 1 = %d\t", rc_values.ch1);
 				printf("Channel 2 = %d\t\n", rc_values.ch2);
-				motor = (int)(rc_values.ch2 * 1.0f/5.0f - 300);
-				printf("Channel 2 motor value = %d\t\n", motor);
+				motor.val = (int)(rc_values.ch2 * 1.0f/5.0f - 300);
+				printf("Channel 2 motor value = %d\t\n", motor.val);
 				motor_prev = rc_values.ch2;
 
 				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
@@ -109,7 +110,7 @@ void rcTask(void* pvParameters)
 					while (1);
 				}
 			}else if(rc_values.ch2 == 1500){
-				motor = 0;
+				motor.val = 0;
 				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
 				if (status != pdPASS)
 				{
