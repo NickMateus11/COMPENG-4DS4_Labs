@@ -14,7 +14,7 @@
 #include "Motor_Control_Component.h"
 #include "LED_Component.h"
 
-#define RC_UART		UART4//Define UART for RC receiver
+#define RC_UART		UART1//Define UART for RC receiver
 
 extern SemaphoreHandle_t rc_hold_semaphore;
 extern TaskHandle_t rc_task_handle;

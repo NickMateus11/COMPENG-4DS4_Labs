@@ -40,11 +40,7 @@ void setupRCPins()
 {
 	//Configure RC pins
 	CLOCK_EnableClock(kCLOCK_PortC);
-	PORT_SetPinMux(PORTC, 14U, kPORT_MuxAlt3);
-	PORT_SetPinMux(PORTC, 13U, kPORT_MuxAlt3);
-	PORT_SetPinMux(PORTC, 15U, kPORT_MuxAlt3);
-	CLOCK_EnableClock(kCLOCK_PortE);
-	PORT_SetPinMux(PORTE, 27U, kPORT_MuxAlt3);
+	PORT_SetPinMux(PORTC, 3U, kPORT_MuxAlt3);
 }
 
 void setupUART_RC()
@@ -52,12 +48,11 @@ void setupUART_RC()
 	//setup UART for RC receiver
 	uart_config_t config;
 	UART_GetDefaultConfig(&config);
-	config.baudRate_Bps = 57600;
-	config.enableTx = true;
+	config.baudRate_Bps = 115200;
+	config.enableTx = false;
 	config.enableRx = true;
-	config.enableRxRTS = true;
-	config.enableTxCTS = true;
-	UART_Init(TARGET_UART, &config, CLOCK_GetFreq(kCLOCK_BusClk));
+
+	UART_Init(RC_UART, &config, CLOCK_GetFreq(kCLOCK_CoreSysClk));
 }
 
 void rcTask(void* pvParameters)
@@ -67,16 +62,12 @@ void rcTask(void* pvParameters)
 	SemaphoreHandle_t hold_semaphore = semaphores;
 
 	BaseType_t status;
-	uart_config_t config;
 	RC_Values rc_values;
 	uint8_t* ptr = (uint8_t*) &rc_values;
-	int motor, angle;
+	int motor, angle, motor_prev, angle_prev;
+	motor_prev = 1500;
+	angle_prev = 1500;
 
-	config.baudRate_Bps = 115200;
-	config.enableTx = false;
-	config.enableRx = true;
-
-	UART_Init(UART1, &config, CLOCK_GetFreq(kCLOCK_CoreSysClk));
 
 	while(1)
 	{
@@ -87,37 +78,42 @@ void rcTask(void* pvParameters)
 //			while (1);
 //		}
 
-		UART_ReadBlocking(UART1, ptr, 1);
+		UART_ReadBlocking(RC_UART, ptr, 1);
 		if(*ptr != 0x20)
 			continue;
 
-		UART_ReadBlocking(UART1, &ptr[1], sizeof(rc_values) - 1);
+		UART_ReadBlocking(RC_UART, &ptr[1], sizeof(rc_values) - 1);
 		if(rc_values.header == 0x4020)
 		{
+//			if(motor != motor_prev){
+				//right joy stick for forward/backward
+	//			printf("Channel 1 = %d\t", rc_values.ch1);
+				printf("Channel 2 = %d\t", rc_values.ch2);
+				motor = (int)(rc_values.ch2 * 1.0f/5.0f - 300);
+//				motor_prev = motor;
 
-			//right joy stick for forward/backward
-//			printf("Channel 1 = %d\t", rc_values.ch1);
-			printf("Channel 2 = %d\t", rc_values.ch2);
-			motor = (int)(rc_values.ch2 * 1.0f/5.0f - 300);
+				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
+				if (status != pdPASS)
+				{
+					PRINTF("Queue Send failed!.\r\n");
+					while (1);
+				}
+//			}
 
-			status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
-			if (status != pdPASS)
-			{
-				PRINTF("Queue Send failed!.\r\n");
-				while (1);
-			}
+//			if(angle != angle_prev){
+				//left joy stick for left/right
+	//			printf("Channel 3 = %d\t", rc_values.ch3);
+				printf("Channel 4 = %d\t\n", rc_values.ch4);
+				angle = (int)(-1 * (rc_values.ch4 * 1.0f/5.0f - 300));
+//				angle_prev = angle;
 
-			//left joy stick for left/right
-//			printf("Channel 3 = %d\t", rc_values.ch3);
-			printf("Channel 4 = %d\t", rc_values.ch4);
-			angle = (int)(rc_values.ch4 * 1.0f/5.0f - 300);
-
-			status = xQueueSendToBack(angle_queue, (void*) &angle, portMAX_DELAY);
-			if (status != pdPASS)
-			{
-				PRINTF("Queue Send failed!.\r\n");
-				while (1);
-			}
+				status = xQueueSendToBack(angle_queue, (void*) &angle, portMAX_DELAY);
+				if (status != pdPASS)
+				{
+					PRINTF("Queue Send failed!.\r\n");
+					while (1);
+				}
+//			}
 
 //			printf("Channel 5 = %d\t", rc_values.ch5);
 //			printf("Channel 6 = %d\t", rc_values.ch6);

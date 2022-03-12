@@ -11,9 +11,12 @@ void setupMotorComponent()
 	setupDCMotor();
 	setupServo();
 
+	for(volatile int i = 0U; i < 1000000; i++)
+	     __asm("NOP");
+
     /*************** Motor Task ***************/
 	//Create Motor Queue
-	motor_queue = xQueueCreate(10, sizeof(int));
+	motor_queue = xQueueCreate(5, sizeof(int));
 
 	//Create Motor Task
 	status = xTaskCreate(motorTask, "motor", 200, (void*)motor_queue, 2, NULL);
@@ -25,7 +28,7 @@ void setupMotorComponent()
 
     /*************** Position Task ***************/
 	//Create Angle Queue
-	angle_queue = xQueueCreate(10, sizeof(int));
+	angle_queue = xQueueCreate(5, sizeof(int));
 
 	//Create Position Task
 	status = xTaskCreate(positionTask, "position", 200, (void*)angle_queue, 2, NULL);
@@ -122,8 +125,9 @@ void motorTask(void* pvParameters)
 	//lab2 queue consumer code
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
-	int motor_value;
+	int motor_value, prev_value;
 	float dutyCycle;
+	prev_value = 0;
 
 	while(1)
 	{
@@ -134,12 +138,14 @@ void motorTask(void* pvParameters)
 			while (1);
 		}
 
+		if(motor_value != prev_value){
+			dutyCycle = motor_value * 0.025f/100.0f + 0.0615;
+			updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
 
-		dutyCycle = motor_value * 0.025f/100.0f + 0.0615;
-		updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
-
-		FTM_SetSoftwareTrigger(FTM_MOTORS, true);
-		PRINTF("Received Value = %d\r\n", motor_value);
+			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
+			PRINTF("Motor Value = %d\r\n", motor_value);
+			prev_value = motor_value;
+		}
 	}
 }
 
@@ -148,8 +154,9 @@ void positionTask(void* pvParameters)
 	//Position task implementation
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
-	int angle_value;
+	int angle_value, prev_value;
 	float dutyCycle;
+	prev_value = 0;
 
 	while(1)
 	{
@@ -160,10 +167,13 @@ void positionTask(void* pvParameters)
 			while (1);
 		}
 
-		dutyCycle = angle_value * 0.025f/100.0f + 0.075;
-		updatePWM_dutyCycle(FTM_CHANNEL_SERVO, dutyCycle);
+		if(angle_value != prev_value){
+			dutyCycle = angle_value * 0.025f/100.0f + 0.075;
+			updatePWM_dutyCycle(FTM_CHANNEL_SERVO, dutyCycle);
 
-		FTM_SetSoftwareTrigger(FTM_MOTORS, true);
-		PRINTF("Received Value = %d\r\n", angle_value);
+			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
+			PRINTF("Servo Value = %d\r\n", angle_value);
+			prev_value = angle_value;
+		}
 	}
 }
