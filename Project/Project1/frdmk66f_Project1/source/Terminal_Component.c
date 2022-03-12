@@ -6,13 +6,13 @@ TimerHandle_t timer_handle;
 void timerCallbackFunction(TimerHandle_t timer_handle) {
 	BaseType_t status;
 	int val_to_send = 0;
-	status = xQueueSendToBack(angle_queue,(void*)val_to_send,portMAX_DELAY);
+	status = xQueueSendToBack(angle_queue,(void*)&val_to_send,portMAX_DELAY);
 	if (status != pdPASS)
 	{
 		PRINTF("QueueSend failed!.\r\n");
 		while (1);
 	}
-	status = xQueueSendToBack(motor_queue,(void*)val_to_send,portMAX_DELAY);
+	status = xQueueSendToBack(motor_queue,(void*)&val_to_send,portMAX_DELAY);
 	if (status != pdPASS)
 	{
 		PRINTF("QueueSend failed!.\r\n");
@@ -41,7 +41,7 @@ void setupTerminalComponent()
         PRINTF("Task creation failed!.\r\n");
         while (1);
     }
-    timer_handle = xTimerCreate("Periodic timer", 1000 / portTICK_PERIOD_MS, pdFALSE, (void*)0, timerCallbackFunction);
+    timer_handle = xTimerCreate("Periodic timer", 500/ portTICK_PERIOD_MS, pdFALSE, (void*)0, timerCallbackFunction);
 
 
     /*************** Terminal Control Task ***************/
@@ -180,7 +180,7 @@ void terminalControlTask(void* pvParameters)
 		if ((bits & LEFT_BIT) == LEFT_BIT) {
 			PRINTF("Left\r\n");
 			val_to_send = 100;
-			status = xQueueSendToBack(angle_queue,(void*)val_to_send,portMAX_DELAY);
+			status = xQueueSendToBack(angle_queue,(void*)&val_to_send,portMAX_DELAY);
 			if (status != pdPASS)
 			{
 				PRINTF("QueueSend failed!.\r\n");
@@ -190,7 +190,7 @@ void terminalControlTask(void* pvParameters)
 		if ((bits & RIGHT_BIT) == RIGHT_BIT) {
 			PRINTF("Right\r\n");
 			val_to_send = -100;
-			status = xQueueSendToBack(angle_queue,(void*)val_to_send,portMAX_DELAY);
+			status = xQueueSendToBack(angle_queue,(void*)&val_to_send,portMAX_DELAY);
 			if (status != pdPASS)
 			{
 				PRINTF("QueueSend failed!.\r\n");
@@ -200,7 +200,7 @@ void terminalControlTask(void* pvParameters)
 		if ((bits & UP_BIT) == UP_BIT) {
 			PRINTF("Up\r\n");
 			val_to_send = 50;
-			status = xQueueSendToBack(motor_queue,(void*)val_to_send,portMAX_DELAY);
+			status = xQueueSendToBack(motor_queue,(void*)&val_to_send,portMAX_DELAY);
 			if (status != pdPASS)
 			{
 				PRINTF("QueueSend failed!.\r\n");
@@ -210,7 +210,7 @@ void terminalControlTask(void* pvParameters)
 		if ((bits & DOWN_BIT) == DOWN_BIT) {
 			PRINTF("Down\r\n");
 			val_to_send = 50;
-			status = xQueueSendToBack(motor_queue,(void*)val_to_send,portMAX_DELAY);
+			status = xQueueSendToBack(motor_queue,(void*)&val_to_send,portMAX_DELAY);
 			if (status != pdPASS)
 			{
 				PRINTF("QueueSend failed!.\r\n");

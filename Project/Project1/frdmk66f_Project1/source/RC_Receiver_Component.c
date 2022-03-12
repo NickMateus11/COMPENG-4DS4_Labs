@@ -29,11 +29,14 @@ void setupRCReceiverComponent()
 
 	//Create RC Task
 	status = xTaskCreate(rcTask, "rc", 200, (void*)rc_hold_semaphore, 2, NULL);
+
 	if (status != pdPASS)
 	{
 		PRINTF("Task creation failed!.\r\n");
 		while (1);
 	}
+	xSemaphoreGive(rc_hold_semaphore);
+
 }
 
 void setupRCPins()
@@ -58,8 +61,8 @@ void setupUART_RC()
 void rcTask(void* pvParameters)
 {
 	//RC task implementation
-	SemaphoreHandle_t* semaphores = (SemaphoreHandle_t*)pvParameters;
-	SemaphoreHandle_t hold_semaphore = semaphores;
+
+
 
 	BaseType_t status;
 	RC_Values rc_values;
@@ -71,16 +74,20 @@ void rcTask(void* pvParameters)
 
 	while(1)
 	{
-//		status = xSemaphoreTake(hold_semaphore, portMAX_DELAY);
-//		if (status != pdPASS)
-//		{
-//			PRINTF("Failed to acquire hold_semaphore\r\n");
-//			while (1);
-//		}
+
+		status = xSemaphoreTake(rc_hold_semaphore, portMAX_DELAY);
+		if (status != pdPASS)
+		{
+			PRINTF("Failed to acquire hold_semaphore\r\n");
+			while (1);
+		}
 
 		UART_ReadBlocking(RC_UART, ptr, 1);
-		if(*ptr != 0x20)
+
+		if(*ptr != 0x20) {
+			xSemaphoreGive(rc_hold_semaphore);
 			continue;
+		}
 
 		UART_ReadBlocking(RC_UART, &ptr[1], sizeof(rc_values) - 1);
 		if(rc_values.header == 0x4020)
@@ -133,7 +140,7 @@ void rcTask(void* pvParameters)
 //			printf("Channel 7 = %d\t", rc_values.ch7);
 //			printf("Channel 8 = %d\r\n", rc_values.ch8);
 		}
-//		xSemaphoreGive(hold_semaphore);
+		xSemaphoreGive(rc_hold_semaphore);
 	}
 }
 
