@@ -14,11 +14,11 @@
 int main(void)
 {
     /* Init board hardware. */
-    BOARD_InitBootClocks();
+		BOARD_InitBootClocks();
 //
     setupMotorComponent();
     setupRCReceiverComponent();
-//    setupTerminalComponent();
+    setupTerminalComponent();
 //    setupLEDComponent();
 //    setupAccelerometerComponent();
 
