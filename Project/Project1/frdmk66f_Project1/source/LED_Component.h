@@ -20,6 +20,10 @@
 #define FTM_GREEN_CHANNEL		//Define green LED channel
 #define FTM_BLUE_CHANNEL		//Define blue LED channel
 
+#define COLOUR_FAST		0xFF0000
+#define COLOUR_MEDIUM 	0xFF9900
+#define COLOUR_SLOW		0x00FF00
+
 extern QueueHandle_t led_queue;
 
 void setupLEDComponent();

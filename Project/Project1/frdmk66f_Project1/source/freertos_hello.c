@@ -19,8 +19,12 @@ int main(void)
 //    setupMotorComponent();
 //    setupRCReceiverComponent();
 //    setupTerminalComponent();
-//    setupLEDComponent();
+    setupLEDComponent();
 //    setupAccelerometerComponent();
+
+    // TODO: this code goes into the motor thread
+    int speed = -20; // some speed value
+    xQueueSendToBack(led_queue, (void*) (&speed), portMAX_DELAY);
 
     vTaskStartScheduler();
 

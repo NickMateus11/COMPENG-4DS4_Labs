@@ -16,6 +16,10 @@
 #define FTM_CHANNEL_DC_MOTOR	//Define DC motor channel
 #define FTM_CHANNEL_SERVO		//Define servo PWM channel
 
+#define SPEED_FAST			100
+#define SPEED_MEDIUM		70
+#define SPEED_SLOW			30
+
 extern QueueHandle_t motor_queue, angle_queue;
 
 void setupMotorComponent();
