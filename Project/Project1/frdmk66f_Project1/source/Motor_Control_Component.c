@@ -155,7 +155,7 @@ void motorTask(void* pvParameters)
 	//lab2 queue consumer code
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
-	msg_struct_t motor_value;
+	msg_struct_t motor_struct;
 	int prev_value;
 	float dutyCycle;
 	prev_value = 0;

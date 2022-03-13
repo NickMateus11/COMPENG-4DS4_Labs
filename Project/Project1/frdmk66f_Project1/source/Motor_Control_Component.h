@@ -19,8 +19,8 @@
 
 extern QueueHandle_t motor_queue, angle_queue;
 
-extern struct {
-	int msg_type; // 0-speed, 1-compensation
+typedef struct {
+	int type; // 0-speed, 1-compensation
 	int val;
 } msg_struct_t ;
 

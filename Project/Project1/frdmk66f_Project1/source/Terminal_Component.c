@@ -158,7 +158,8 @@ void terminalControlTask(void* pvParameters)
 	EventBits_t bits;
 	BaseType_t status;
 	int val_to_send;
-	msg_struct_t motor_msg = {.type=0, .val=0};
+	msg_struct_t motor_msg;
+	motor_msg.type = 0;
 	while (1) {
 		bits = xEventGroupWaitBits(event_group, LEFT_BIT | RIGHT_BIT | UP_BIT | DOWN_BIT, pdTRUE, pdFALSE,	portMAX_DELAY);
 

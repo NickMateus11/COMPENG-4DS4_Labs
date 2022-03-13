@@ -13,7 +13,7 @@ void setupAccelerometerComponent()
 
     /*************** Accelerometer Task ***************/
 	//Create Accelerometer Task
-	status = xTaskCreate(accelerometerTask, "accelerometerTask", 200, (void*)NULL, 2, NULL);
+	int status = xTaskCreate(accelerometerTask, "accelerometerTask", 200, (void*)NULL, 2, NULL);
 	if (status != pdPASS)
 	{
 		PRINTF("Task creation failed!.\r\n");
