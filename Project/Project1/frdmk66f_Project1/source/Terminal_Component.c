@@ -42,7 +42,7 @@ void setupTerminalComponent()
         PRINTF("Task creation failed!.\r\n");
         while (1);
     }
-    timer_handle = xTimerCreate("Periodic timer", 500/ portTICK_PERIOD_MS, pdFALSE, (void*)0, timerCallbackFunction);
+    timer_handle = xTimerCreate("Periodic timer", 100/ portTICK_PERIOD_MS, pdFALSE, (void*)0, timerCallbackFunction);
 
 
     /*************** Terminal Control Task ***************/
