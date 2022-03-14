@@ -13,8 +13,9 @@
 #include "Terminal_Component.h"
 
 #define FTM_MOTORS 				FTM0
-#define FTM_CHANNEL_DC_MOTOR	//Define DC motor channel
-#define FTM_CHANNEL_SERVO		//Define servo PWM channel
+#define FTM_SERVO				FTM3
+#define FTM_CHANNEL_DC_MOTOR	kFTM_Chnl_0//Define DC motor channel
+#define FTM_CHANNEL_SERVO		kFTM_Chnl_7//Define servo PWM channel
 
 #define SPEED_FAST			100
 #define SPEED_MEDIUM		70
@@ -22,12 +23,18 @@
 
 extern QueueHandle_t motor_queue, angle_queue;
 
+typedef struct {
+	int type; // 0-speed, 1-compensation
+	int val;
+} msg_struct_t ;
+
 void setupMotorComponent();
 void setupDCMotor();
 void setupServo();
 void setupMotorPins();
 
 void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle);
+void updateServoPWM_dutyCycle(ftm_chnl_t channel, float dutyCycle);
 
 void motorTask(void* pvParameters);
 void positionTask(void* pvParameters);

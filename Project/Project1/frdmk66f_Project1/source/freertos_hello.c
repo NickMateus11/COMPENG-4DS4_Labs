@@ -14,17 +14,13 @@
 int main(void)
 {
     /* Init board hardware. */
-    BOARD_InitBootClocks();
-//
-//    setupMotorComponent();
-//    setupRCReceiverComponent();
-//    setupTerminalComponent();
+	BOARD_InitBootClocks();
+
+    setupMotorComponent();
+    setupRCReceiverComponent();
+    setupTerminalComponent();
     setupLEDComponent();
 //    setupAccelerometerComponent();
-
-    // TODO: this code goes into the motor thread
-    int speed = -20; // some speed value
-    xQueueSendToBack(led_queue, (void*) (&speed), portMAX_DELAY);
 
     vTaskStartScheduler();
 
