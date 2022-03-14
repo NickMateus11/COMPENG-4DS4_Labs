@@ -8,7 +8,7 @@ void setupMotorComponent()
 	BaseType_t status;
 	setupMotorPins();
 
-	setupDCMotor();
+	setupMotors();
 	setupServo();
 
 	for(volatile int i = 0U; i < 1000000; i++)
@@ -47,11 +47,11 @@ void setupMotorPins()
 	PORT_SetPinMux(PORTC,1U, kPORT_MuxAlt4);
 
 	//servo
-	CLOCK_EnableClock(kCLOCK_PortE);
-	PORT_SetPinMux(PORTE,12U, kPORT_MuxAlt6);
+	CLOCK_EnableClock(kCLOCK_PortA);
+	PORT_SetPinMux(PORTA,6U, kPORT_MuxAlt3);
 }
 
-void setupDCMotor()
+void setupMotors()
 {
 	//Initialize PWM for DC motor
 	//lab1_q1 code
@@ -87,10 +87,10 @@ void setupServo()
 	ftmParam.enableDeadtime = false;
 	FTM_GetDefaultConfig(&ftmInfo);
 	ftmInfo.prescale = kFTM_Prescale_Divide_128;
-	FTM_Init(FTM_SERVO, &ftmInfo);
-	FTM_SetupPwm(FTM_SERVO, &ftmParam, 1U, kFTM_EdgeAlignedPwm, 50U, CLOCK_GetFreq(
+	FTM_Init(FTM_MOTORS, &ftmInfo);
+	FTM_SetupPwm(FTM_MOTORS, &ftmParam, 1U, kFTM_EdgeAlignedPwm, 50U, CLOCK_GetFreq(
 	kCLOCK_BusClk));
-	FTM_StartTimer(FTM_SERVO, kFTM_SystemClock);
+	FTM_StartTimer(FTM_MOTORS, kFTM_SystemClock);
 }
 
 void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
@@ -99,8 +99,8 @@ void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
 
 	/* The CHANNEL_COUNT macro returns -1 if it cannot match the FTM instance */
 	assert(-1 != FSL_FEATURE_FTM_CHANNEL_COUNTn(FTM_MOTORS));
-	sendMessage("Duty cycle =%6.5f\r\n", dutyCycle);
-	sendMessage("channel =%d\r\n", (int)channel);
+	//sendMessage("Duty cycle =%6.5f\r\n", dutyCycle);
+	//sendMessage("channel =%d\r\n", (int)channel);
 
 	mod = FTM_MOTORS->MOD;
 	if(dutyCycle == 0U)
@@ -119,34 +119,6 @@ void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
 	}
 
 	FTM_MOTORS->CONTROLS[channel].CnV = cnv;
-}
-
-void updateServoPWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
-{
-	uint32_t cnv, cnvFirstEdge = 0, mod;
-
-	/* The CHANNEL_COUNT macro returns -1 if it cannot match the FTM instance */
-	assert(-1 != FSL_FEATURE_FTM_CHANNEL_COUNTn(FTM_SERVO));
-	sendMessage("Duty cycle =%6.5f\r\n", dutyCycle);
-	sendMessage("channel =%d\r\n", (int)channel);
-
-	mod = FTM_SERVO->MOD;
-	if(dutyCycle == 0U)
-	{
-		/* Signal stays low */
-		cnv = 0;
-	}
-	else
-	{
-		cnv = mod * dutyCycle;
-		/* For 100% duty cycle */
-		if (cnv >= mod)
-		{
-			cnv = mod + 1U;
-		}
-	}
-
-	FTM_SERVO->CONTROLS[channel].CnV = cnv;
 }
 
 void motorTask(void* pvParameters)
@@ -175,7 +147,7 @@ void motorTask(void* pvParameters)
 
 			PRINTF("Motor Value = %d\r\n", motor_struct.val);
 			PRINTF("Motor dutyCycle = %d\r\n", (int)(dutyCycle*100));
-			sendMessage("motor	 angle =%d\r\n", motor_struct.val);
+			sendMessage("motor value = %d\r\n", motor_struct.val);
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			prev_value = motor_struct.val;
 
@@ -219,11 +191,11 @@ void positionTask(void* pvParameters)
 
 		if(angle_value != prev_value){
 			dutyCycle = angle_value * 0.025f/100.0f + 0.075;
-			updateServoPWM_dutyCycle(FTM_CHANNEL_SERVO, dutyCycle);
+			updatePWM_dutyCycle(FTM_CHANNEL_SERVO, dutyCycle);
 
 			PRINTF("Servo Value = %d\r\n", angle_value);
 			sendMessage("Servo angle =%d\r\n", angle_value);
-			FTM_SetSoftwareTrigger(FTM_SERVO, true);
+			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			prev_value = angle_value;
 		}
 	}
