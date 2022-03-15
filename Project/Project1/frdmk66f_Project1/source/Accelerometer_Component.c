@@ -11,9 +11,10 @@ void setupAccelerometerComponent()
 
 	spi_init();
 
+
     /*************** Accelerometer Task ***************/
 	//Create Accelerometer Task
-	int status = xTaskCreate(accelerometerTask, "accelerometerTask", 200, (void*)NULL, 2, NULL);
+	int status = xTaskCreate(accelerometerTask, "accelerometerTask", 200, (void*)NULL, 1, NULL);
 	if (status != pdPASS)
 	{
 		PRINTF("Task creation failed!.\r\n");
@@ -24,11 +25,18 @@ void setupAccelerometerComponent()
 void setupAccelerometerPins()
 {
 	//Initialize Accelerometer Pins
-	gpio_pin_config_t pin_config = {
-			.pinDirection = kGPIO_DigitalOutput,
-			.outputLogic = 0U};
-		GPIO_PinInit(GPIOB, 8, &pin_config);
-		GPIO_PinWrite(GPIOB, 8, 1U);
+	   CLOCK_EnableClock(kCLOCK_PortA);
+	    /* Port B Clock Gate Control: Clock enabled */
+	 CLOCK_EnableClock(kCLOCK_PortB);
+
+
+	    PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt2);//MISO
+	    PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt2);//MOSI
+	    PORT_SetPinMux(PORTB, 11U, kPORT_MuxAlt2);//SCLK
+	    PORT_SetPinMux(PORTB, 10U, kPORT_MuxAlt2);//CS
+
+	    PORT_SetPinMux(PORTB, 8U, kPORT_MuxAsGpio);
+	    PORT_SetPinMux(PORTA, 25U, kPORT_MuxAsGpio);
 }
 
 void voltageRegulator_enable()
@@ -125,4 +133,77 @@ status_t SPI_receive(uint8_t regAddress, uint8_t *rxBuff, uint8_t rxBuffSize)
 void accelerometerTask(void* pvParameters)
 {
 	//Accelerometer task implementation
+	fxos_handle_t fxosHandle = {0};
+	fxos_data_t sensorData = {0};
+	fxos_config_t config = {0};
+
+	uint8_t sensorRange = 0;
+	uint8_t dataScale = 0;
+	int16_t yData = 0;
+	uint8_t i = 0;
+	uint8_t array_addr_size = 0;
+
+	status_t result = kStatus_Fail;
+
+	volatile int16_t yAngle = 0;
+
+	/* Configure the SPI function */
+	config.SPI_writeFunc = SPI_write;
+	config.SPI_readFunc = SPI_read;
+
+	result = FXOS_Init(&fxosHandle, &config);
+	if (result != kStatus_Success)
+	{
+		PRINTF("\r\nSensor device initialize failed!\r\n");
+		while(1);
+	}
+
+	/* Get sensor range */
+	if (FXOS_ReadReg(&fxosHandle, XYZ_DATA_CFG_REG, &sensorRange, 1) != kStatus_Success)
+	{
+		PRINTF("Failed to get sensor range!.\r\n");
+		while(1);
+	}
+
+	if (sensorRange == 0x00)
+	{
+		dataScale = 2U;
+	}
+	else if (sensorRange == 0x01)
+	{
+		dataScale = 4U;
+	}
+	else if (sensorRange == 0x10)
+	{
+		dataScale = 8U;
+	}
+	else{
+
+	}
+	msg_struct_t compensation = {type=1,val=0};
+
+	while (1)
+	{
+
+		/* Get new accelerometer data. */
+		if (FXOS_ReadSensorData(&fxosHandle, &sensorData) != kStatus_Success)
+		{
+			PRINTF("Failed to get data!.\r\n");
+			while(1);
+		}
+		/* Get the X and Y data from the sensor data structure in 14 bit left format data*/
+
+		yData = ((int16_t)((uint16_t)((uint16_t)sensorData.accelYMSB << 8) | (uint16_t)	sensorData.accelYLSB)) / 4U;
+		/* Convert raw data to angle (normalize to 0-90 degrees). No negative angles. */
+		yAngle = (int16_t)((double)yData * (double)dataScale * 90 / 8192);
+		compensation.val = yAngle;
+		status = xQueueSendToFront(motor_queue, (void *) &compensation, portMAX_DELAY);
+		if (status != pdPASS)
+		{
+			PRINTF("Queue Send failed!.\r\n");
+			while (1);
+		}
+	}
+
+
 }
