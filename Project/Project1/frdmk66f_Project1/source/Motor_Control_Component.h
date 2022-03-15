@@ -27,7 +27,7 @@ typedef struct {
 } msg_struct_t ;
 
 void setupMotorComponent();
-void setupDCMotor();
+void setupMotors();
 void setupServo();
 void setupMotorPins();
 

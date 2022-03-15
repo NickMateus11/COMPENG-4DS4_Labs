@@ -1,6 +1,6 @@
 #include "RC_Receiver_Component.h"
 
-SemaphoreHandle_t rc_hold_semaphore;
+SemaphoreHandle_t *rc_hold_semaphore;
 TaskHandle_t rc_task_handle;
 
 typedef struct {
@@ -25,7 +25,7 @@ void setupRCReceiverComponent()
     /*************** RC Task ***************/
 	//Create RC Semaphore
 	rc_hold_semaphore = (SemaphoreHandle_t*) malloc(1 * sizeof(SemaphoreHandle_t));
-	rc_hold_semaphore = xSemaphoreCreateBinary();
+	*rc_hold_semaphore = xSemaphoreCreateBinary();
 
 	//Create RC Task
 	status = xTaskCreate(rcTask, "rc", 200, (void*)rc_hold_semaphore, 2, NULL);
@@ -35,7 +35,7 @@ void setupRCReceiverComponent()
 		PRINTF("Task creation failed!.\r\n");
 		while (1);
 	}
-	xSemaphoreGive(rc_hold_semaphore);
+	xSemaphoreGive(*rc_hold_semaphore);
 
 }
 
@@ -76,17 +76,17 @@ void rcTask(void* pvParameters)
 	while(1)
 	{
 
-		status = xSemaphoreTake(rc_hold_semaphore, portMAX_DELAY);
-		if (status != pdPASS)
-		{
-			PRINTF("Failed to acquire hold_semaphore\r\n");
-			while (1);
-		}
+//		status = xSemaphoreTake(rc_hold_semaphore, portMAX_DELAY);
+//		if (status != pdPASS)
+//		{
+//			PRINTF("Failed to acquire hold_semaphore\r\n");
+//			while (1);
+//		}
 
 		UART_ReadBlocking(RC_UART, ptr, 1);
 
 		if(*ptr != 0x20) {
-			xSemaphoreGive(rc_hold_semaphore);
+			//xSemaphoreGive(rc_hold_semaphore);
 			continue;
 		}
 
@@ -103,7 +103,9 @@ void rcTask(void* pvParameters)
 				printf("Channel 2 motor value = %d\t\n", motor.val);
 				motor_prev = rc_values.ch2;
 
+				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
+				xSemaphoreGive(*rc_hold_semaphore);
 				if (status != pdPASS)
 				{
 					PRINTF("Queue Send failed!.\r\n");
@@ -111,7 +113,9 @@ void rcTask(void* pvParameters)
 				}
 			}else if(rc_values.ch2 == 1500){
 				motor.val = 0;
+				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
+				xSemaphoreGive(*rc_hold_semaphore);
 				if (status != pdPASS)
 				{
 					PRINTF("Queue Send failed!.\r\n");
@@ -128,7 +132,9 @@ void rcTask(void* pvParameters)
 				angle = (int)(-1 * (rc_values.ch4 * 1.0f/5.0f - 300));
 				angle_prev = rc_values.ch4;
 
+				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(angle_queue, (void*) &angle, portMAX_DELAY);
+				xSemaphoreGive(*rc_hold_semaphore);
 				if (status != pdPASS)
 				{
 					PRINTF("Queue Send failed!.\r\n");
@@ -141,7 +147,6 @@ void rcTask(void* pvParameters)
 //			printf("Channel 7 = %d\t", rc_values.ch7);
 //			printf("Channel 8 = %d\r\n", rc_values.ch8);
 		}
-		xSemaphoreGive(rc_hold_semaphore);
 	}
 }
 

@@ -19,7 +19,7 @@ void timerCallbackFunction(TimerHandle_t timer_handle) {
 		PRINTF("QueueSend failed!.\r\n");
 		while (1);
 	}
-	xSemaphoreGive(rc_hold_semaphore);
+	xSemaphoreGive(*rc_hold_semaphore);
 }
 void setupTerminalComponent()
 {
@@ -164,7 +164,7 @@ void terminalControlTask(void* pvParameters)
 		bits = xEventGroupWaitBits(event_group, LEFT_BIT | RIGHT_BIT | UP_BIT | DOWN_BIT, pdTRUE, pdFALSE,	portMAX_DELAY);
 
 		if(xTimerIsTimerActive(timer_handle) == pdFALSE){
-			status = xSemaphoreTake(rc_hold_semaphore,portMAX_DELAY);
+			status = xSemaphoreTake(*rc_hold_semaphore,portMAX_DELAY);
 				if (status != pdPASS)
 				{
 					PRINTF("Couldn't take hold semaphore!.\r\n");

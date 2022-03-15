@@ -16,7 +16,7 @@
 
 #define RC_UART		UART1//Define UART for RC receiver
 
-extern SemaphoreHandle_t rc_hold_semaphore;
+extern SemaphoreHandle_t *rc_hold_semaphore;
 extern TaskHandle_t rc_task_handle;
 
 void setupRCReceiverComponent();
