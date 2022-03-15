@@ -154,7 +154,7 @@ void motorTask(void* pvParameters)
 			// send speed info to LED queue
 		    xQueueSendToBack(led_queue, (void*) (&(motor_struct.val)), portMAX_DELAY);
 		}
-		else if (motor_struct.type==1) { //compensation
+		else if (motor_struct.type==1 && prev_value != 0) { //compensation
 			int compensated_val = prev_value + motor_struct.val;
 			dutyCycle = (float)(compensated_val * 0.025f/100.0f + 0.0705);
 			updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
@@ -162,7 +162,7 @@ void motorTask(void* pvParameters)
 			PRINTF("COMPENSATING: %d", motor_struct.val);
 			PRINTF("Motor Value = %d\r\n", compensated_val);
 			PRINTF("Motor dutyCycle = %d\r\n", (int)(dutyCycle*100));
-			sendMessage("motor value =%d\r\n", compensated_val);
+			//sendMessage("motor compensation = %d\r\n", compensated_val);
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 
 			// send speed info to LED queue
@@ -192,7 +192,6 @@ void positionTask(void* pvParameters)
 		if(angle_value != prev_value){
 			dutyCycle = angle_value * 0.025f/100.0f + 0.075;
 			updatePWM_dutyCycle(FTM_CHANNEL_SERVO, dutyCycle);
-
 			PRINTF("Servo Value = %d\r\n", angle_value);
 			sendMessage("Servo angle =%d\r\n", angle_value);
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);

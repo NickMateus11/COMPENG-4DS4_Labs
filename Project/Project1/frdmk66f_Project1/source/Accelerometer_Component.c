@@ -14,7 +14,7 @@ void setupAccelerometerComponent()
 
     /*************** Accelerometer Task ***************/
 	//Create Accelerometer Task
-	int status = xTaskCreate(accelerometerTask, "accelerometerTask", 200, (void*)NULL, 1, NULL);
+	int status = xTaskCreate(accelerometerTask, "accelerometerTask", 200, (void*)NULL, 2, NULL);
 	if (status != pdPASS)
 	{
 		PRINTF("Task creation failed!.\r\n");
@@ -83,7 +83,7 @@ void spi_init()
 	DSPI_MasterInit(SPI1, &masterConfig, BUS_CLK);
 }
 
-status_t SPI_Send(uint8_t regAddress, uint8_t value)
+status_t SPI_write(uint8_t regAddress, uint8_t value)
 {
 	dspi_transfer_t masterXfer;
 	uint8_t *masterTxData = (uint8_t*)malloc(3);
@@ -106,7 +106,7 @@ status_t SPI_Send(uint8_t regAddress, uint8_t value)
 
 }
 
-status_t SPI_receive(uint8_t regAddress, uint8_t *rxBuff, uint8_t rxBuffSize)
+status_t SPI_read(uint8_t regAddress, uint8_t *rxBuff, uint8_t rxBuffSize)
 {
 	dspi_transfer_t masterXfer;
 		uint8_t *masterTxData = (uint8_t*)malloc(rxBuffSize + 2);
@@ -180,8 +180,8 @@ void accelerometerTask(void* pvParameters)
 	else{
 
 	}
-	msg_struct_t compensation = {type=1,val=0};
-
+	msg_struct_t compensation = {.type=1,.val=0};
+	BaseType_t status;
 	while (1)
 	{
 
@@ -196,12 +196,18 @@ void accelerometerTask(void* pvParameters)
 		yData = ((int16_t)((uint16_t)((uint16_t)sensorData.accelYMSB << 8) | (uint16_t)	sensorData.accelYLSB)) / 4U;
 		/* Convert raw data to angle (normalize to 0-90 degrees). No negative angles. */
 		yAngle = (int16_t)((double)yData * (double)dataScale * 90 / 8192);
-		compensation.val = yAngle;
-		status = xQueueSendToFront(motor_queue, (void *) &compensation, portMAX_DELAY);
-		if (status != pdPASS)
-		{
-			PRINTF("Queue Send failed!.\r\n");
-			while (1);
+		compensation.val = 10*yAngle;
+		if(compensation.val != 0){
+			status = xQueueSendToBack(motor_queue, (void *) &compensation, portMAX_DELAY);
+			if (status != pdPASS)
+			{
+				PRINTF("Queue Send failed!.\r\n");
+				while (1);
+			}
+			PRINTF("compensation value = %d\r\n", yAngle);
+			sendMessage("compensation value = %d\r\n", yAngle);
+		}else{
+			vTaskDelay(100/portTICK_PERIOD_MS);
 		}
 	}
 
