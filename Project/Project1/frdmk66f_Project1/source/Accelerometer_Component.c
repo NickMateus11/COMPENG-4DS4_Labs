@@ -44,6 +44,11 @@ void voltageRegulator_enable()
 void accelerometer_enable()
 {
 	//Enable accelerometer
+	gpio_pin_config_t pin_config = {
+			.pinDirection = kGPIO_DigitalOutput,
+			.outputLogic = 0U};
+		GPIO_PinInit(GPIOA, 25, &pin_config);
+		GPIO_PinWrite(GPIOA, 25, 0U);
 }
 
 void spi_init()
