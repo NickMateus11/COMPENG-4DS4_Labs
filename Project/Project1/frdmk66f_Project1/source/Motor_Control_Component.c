@@ -168,6 +168,7 @@ void motorTask(void* pvParameters)
 			// send speed info to LED queue
 		    xQueueSendToBack(led_queue, (void*) (&compensated_val), portMAX_DELAY);
 		}
+		vTaskDelay(1);
 	}
 }
 
@@ -197,5 +198,6 @@ void positionTask(void* pvParameters)
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			prev_value = angle_value;
 		}
+		vTaskDelay(1);
 	}
 }
