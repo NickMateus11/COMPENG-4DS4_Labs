@@ -128,7 +128,7 @@ void motorTask(void* pvParameters)
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
 	msg_struct_t motor_struct;
-	int prev_value;
+	int prev_value, prev_speed=0;
 	float dutyCycle;
 	prev_value = 0;
 
@@ -141,6 +141,12 @@ void motorTask(void* pvParameters)
 			while (1);
 		}
 
+		if(motor_struct.mode == -1){ // if motor command come from terminal - keep previous mode
+			motor_struct.mode = prev_speed;
+		} else {
+			prev_speed = motor_struct.mode;
+		}
+
 		if(motor_struct.type==0 && motor_struct.val != prev_value){
 			dutyCycle = (motor_struct.mode + 1) * (float)(motor_struct.val)/3.0f * 0.025f/100.0f + 0.0705f;
 //			dutyCycle = (float)(motor_struct.val * 0.025f/100.0f + 0.0705);
@@ -148,11 +154,11 @@ void motorTask(void* pvParameters)
 
 //			PRINTF("Motor Value = %d\r\n", motor_struct.val);
 //			PRINTF("Motor dutyCycle = %d\r\n", (int)(dutyCycle*100));
-			sendMessage("motor value = %d\r\n", motor_struct.val);
+			sendMessage("motor value = %d\r\n", (motor_struct.mode + 1) * (motor_struct.val) / 3);
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			prev_value = motor_struct.val;
 		}
-		else if (motor_struct.type==1) { //compensation
+		else if (motor_struct.type==1 && motor_struct.val<=100 && motor_struct.val>=-100) { //compensation
 			int compensated_val = prev_value - motor_struct.val;
 			// clip values
 			if (compensated_val<-100) {
@@ -160,7 +166,7 @@ void motorTask(void* pvParameters)
 				printf("MAXED OUT\r\n");
 			}
 			else if (compensated_val > 100){
-				compensated_val = -100;
+				compensated_val = 100;
 				printf("MAXED OUT\r\n");
 			}
 			else if (prev_value>0 && compensated_val<0) {
@@ -175,13 +181,13 @@ void motorTask(void* pvParameters)
 			dutyCycle = (motor_struct.mode + 1) * (float)(compensated_val)/3.0f * 0.025f/100.0f + 0.0705f;
 			updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
 
-			PRINTF("COMPENSATING: %d\r\n", motor_struct.val);
+//			PRINTF("COMPENSATING: %d\r\n", motor_struct.val);
 //			PRINTF("Motor Value = %d\r\n", compensated_val);
 			//sendMessage("motor compensation = %d\r\n", compensated_val);
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			vTaskDelay(10/portTICK_PERIOD_MS);
 		}
-		vTaskDelay(10/portTICK_PERIOD_MS);
+		vTaskDelay(1);
 	}
 }
 
@@ -211,6 +217,6 @@ void positionTask(void* pvParameters)
 			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 			prev_value = angle_value;
 		}
-		vTaskDelay(10/portTICK_PERIOD_MS);
+		vTaskDelay(1);
 	}
 }

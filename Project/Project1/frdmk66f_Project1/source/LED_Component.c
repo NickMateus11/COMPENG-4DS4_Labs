@@ -66,9 +66,8 @@ void setupLEDs()
 void ledTask(void* pvParameters)
 {
 	//LED task implementation
-	int speed, colour;
+	int speed=0, colour;
 	while (1){
-		xQueueReceive(led_queue, (void *) (&speed), portMAX_DELAY);
 		PRINTF("LED UPDATE\r\n");
 
 		switch(speed){
@@ -99,5 +98,7 @@ void ledTask(void* pvParameters)
 		FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_5, kFTM_EdgeAlignedPwm, green);
 
 		FTM_SetSoftwareTrigger(FTM3, true);
+
+		xQueueReceive(led_queue, (void *) (&speed), portMAX_DELAY);
 	}
 }

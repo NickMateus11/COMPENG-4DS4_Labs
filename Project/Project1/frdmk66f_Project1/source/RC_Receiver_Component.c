@@ -70,6 +70,7 @@ void rcTask(void* pvParameters)
 	msg_struct_t motor;
 	motor.type = 0;
 	motor.mode = 0;
+	motor.val = 0;
 	int angle, motor_prev, angle_prev, speed_prev;
 	motor_prev = 0;
 	angle_prev = 0;
@@ -91,8 +92,9 @@ void rcTask(void* pvParameters)
 		{
 
 			int speed_mode = ((float)(rc_values.ch6 << 1))/1000.0f - 2;
-			if (speed_mode != speed_prev){
-				printf("speed mode: %d\r\n", speed_mode);
+			if (speed_mode != speed_prev && rc_values.ch6 <= 2000 && rc_values.ch6>=1000){
+				printf("SPEED MODE: %d\r\n", speed_mode);
+				sendMessage("speed mode: %d\r\n", speed_mode);
 				xQueueSendToBack(led_queue, (void*) (&speed_mode), portMAX_DELAY);
 				speed_prev = speed_mode;
 			}
@@ -160,6 +162,8 @@ void rcTask(void* pvParameters)
 					while (1);
 				}
 			}
+
+			vTaskDelay(1);
 
 //			printf("Channel 1 = %d\t", rc_values.ch1);
 //			printf("Channel 2 = %d\t", rc_values.ch2);

@@ -36,7 +36,7 @@ void setupTerminalComponent()
 		PRINTF("Queue creation failed!.\r\n");
 		while (1);
 	}
-    status = xTaskCreate(uartTask, "UART task", 200, NULL, 2, NULL);
+    status = xTaskCreate(uartTask, "UART task", 200, NULL, 3, NULL);
     if (status != pdPASS)
     {
         PRINTF("Task creation failed!.\r\n");
@@ -160,6 +160,7 @@ void terminalControlTask(void* pvParameters)
 	int val_to_send;
 	msg_struct_t motor_msg;
 	motor_msg.type = 0;
+	motor_msg.mode = -1;
 	while (1) {
 		bits = xEventGroupWaitBits(event_group, LEFT_BIT | RIGHT_BIT | UP_BIT | DOWN_BIT, pdTRUE, pdFALSE,	portMAX_DELAY);
 
@@ -202,7 +203,7 @@ void terminalControlTask(void* pvParameters)
 		}
 		if ((bits & UP_BIT) == UP_BIT) {
 			PRINTF("Up\r\n");
-			val_to_send = 50;
+			val_to_send = 100;
 			motor_msg.val = val_to_send;
 			status = xQueueSendToBack(motor_queue,(void*)&motor_msg,portMAX_DELAY);
 			if (status != pdPASS)
@@ -213,7 +214,7 @@ void terminalControlTask(void* pvParameters)
 		}
 		if ((bits & DOWN_BIT) == DOWN_BIT) {
 			PRINTF("Down\r\n");
-			val_to_send = -50;
+			val_to_send = -100;
 			motor_msg.val = val_to_send;
 			status = xQueueSendToBack(motor_queue,(void*)&motor_msg,portMAX_DELAY);
 			if (status != pdPASS)

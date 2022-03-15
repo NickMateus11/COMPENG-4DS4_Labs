@@ -206,7 +206,7 @@ void accelerometerTask(void* pvParameters)
 				while (1);
 			}
 //			PRINTF("angle value = %d\r\n", yAngle);
-			sendMessage("angle value = %d\r\n", yAngle);
+			sendMessage("tile angle= %d\r\n", yAngle);
 		}else{
 			vTaskDelay(100/portTICK_PERIOD_MS);
 		}
