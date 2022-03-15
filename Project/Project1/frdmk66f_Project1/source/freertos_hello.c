@@ -22,6 +22,8 @@ int main(void)
     setupLEDComponent();
 //    setupAccelerometerComponent();
 
+    printf("BEGIN\r\n");
+
     vTaskStartScheduler();
 
     while(1)

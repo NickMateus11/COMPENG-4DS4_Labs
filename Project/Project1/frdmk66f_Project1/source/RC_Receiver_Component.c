@@ -76,13 +76,6 @@ void rcTask(void* pvParameters)
 	while(1)
 	{
 
-//		status = xSemaphoreTake(rc_hold_semaphore, portMAX_DELAY);
-//		if (status != pdPASS)
-//		{
-//			PRINTF("Failed to acquire hold_semaphore\r\n");
-//			while (1);
-//		}
-
 		UART_ReadBlocking(RC_UART, ptr, 1);
 
 		if(*ptr != 0x20) {
@@ -95,15 +88,15 @@ void rcTask(void* pvParameters)
 		{
 
 //			printf("Channel 2 = %d\t", rc_values.ch2);
-			if(rc_values.ch2 != motor_prev){
+			if(rc_values.ch3 != motor_prev){
 				//right joy stick for forward/backward
 	//			printf("Channel 1 = %d\t", rc_values.ch1);
-				printf("Channel 2 = %d\t\n", rc_values.ch2);
-				motor.val = (int)(rc_values.ch2 * 1.0f/5.0f - 300);
+//				printf("Channel 3 = %d\t\n", rc_values.ch3);
+				motor.val = (rc_values.ch5<1500? 1: -1) * (int)(rc_values.ch3 / 10.0f - 100);
 //				motor.val = motor.val-motor.val%20; // round down to nearest 10
-				motor.val = motor.val+(10-motor.val%10); // round up to nearest 10
-				printf("Channel 2 motor value = %d\t\n", motor.val);
-				motor_prev = rc_values.ch2;
+//				motor.val = motor.val+(10-motor.val%10); // round up to nearest 10
+				printf("Channel 3 motor value = %d\t\n", motor.val);
+				motor_prev = rc_values.ch3;
 
 				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
@@ -114,7 +107,7 @@ void rcTask(void* pvParameters)
 					while (1);
 				}
 			}
-			else if(rc_values.ch2 == 1500){
+			else if(rc_values.ch3 == 1000){
 				motor.val = 0;
 				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(motor_queue, (void*) &motor, portMAX_DELAY);
@@ -128,13 +121,13 @@ void rcTask(void* pvParameters)
 
 
 //			printf("Channel 4 = %d and prev = %dt\n", rc_values.ch4,angle_prev);
-			if(rc_values.ch4 != angle_prev){
+			if(rc_values.ch1 != angle_prev){
 				//left joy stick for left/right
 	//			printf("Channel 3 = %d\t", rc_values.ch3);
-				printf("Channel 4 = %d\t\n", rc_values.ch4);
-				angle = (int)(-1 * (rc_values.ch4 * 1.0f/5.0f - 300));
-				angle = angle-angle%10; // round down to nearest 50
-				angle_prev = rc_values.ch4;
+//				printf("Channel 2 = %d\t\n", rc_values.ch2);
+				angle = (int)(-1 * (rc_values.ch1 * 1.0f/5.0f - 300));
+//				angle = angle-angle%10; // round down to nearest 50
+				angle_prev = rc_values.ch1;
 
 				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(angle_queue, (void*) &angle, portMAX_DELAY);
@@ -145,7 +138,7 @@ void rcTask(void* pvParameters)
 					while (1);
 				}
 			}
-			else if(rc_values.ch4 == 1500){
+			else if(rc_values.ch1 == 1500){
 				motor.val = 0;
 				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(angle_queue, (void*) &angle, portMAX_DELAY);
@@ -157,6 +150,10 @@ void rcTask(void* pvParameters)
 				}
 			}
 
+//			printf("Channel 1 = %d\t", rc_values.ch1);
+//			printf("Channel 2 = %d\t", rc_values.ch2);
+//			printf("Channel 3 = %d\t", rc_values.ch3);
+//			printf("Channel 4 = %d\t", rc_values.ch4);
 //			printf("Channel 5 = %d\t", rc_values.ch5);
 //			printf("Channel 6 = %d\t", rc_values.ch6);
 //			printf("Channel 7 = %d\t", rc_values.ch7);
