@@ -67,10 +67,13 @@ void rcTask(void* pvParameters)
 	BaseType_t status;
 	RC_Values rc_values;
 	uint8_t* ptr = (uint8_t*) &rc_values;
-	msg_struct_t motor = {.type=0, .val=0};
-	int angle, motor_prev, angle_prev;
+	msg_struct_t motor;
+	motor.type = 0;
+	motor.mode = 0;
+	int angle, motor_prev, angle_prev, speed_prev;
 	motor_prev = 0;
 	angle_prev = 0;
+	speed_prev = 0;
 
 
 	while(1)
@@ -87,6 +90,14 @@ void rcTask(void* pvParameters)
 		if(rc_values.header == 0x4020)
 		{
 
+			int speed_mode = ((float)(rc_values.ch6 << 1))/1000.0f - 2;
+			if (speed_mode != speed_prev){
+				printf("speed mode: %d\r\n", speed_mode);
+				xQueueSendToBack(led_queue, (void*) (&speed_mode), portMAX_DELAY);
+				speed_prev = speed_mode;
+			}
+			motor.mode = speed_prev;
+
 //			printf("Channel 2 = %d\t", rc_values.ch2);
 			if(rc_values.ch3 != motor_prev){
 				//right joy stick for forward/backward
@@ -95,7 +106,7 @@ void rcTask(void* pvParameters)
 				motor.val = (rc_values.ch5<1500? 1: -1) * (int)(rc_values.ch3 / 10.0f - 100);
 //				motor.val = motor.val-motor.val%20; // round down to nearest 10
 //				motor.val = motor.val+(10-motor.val%10); // round up to nearest 10
-				printf("Channel 3 motor value = %d\t\n", motor.val);
+//				printf("Channel 3 motor value = %d\t\n", motor.val);
 				motor_prev = rc_values.ch3;
 
 				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);

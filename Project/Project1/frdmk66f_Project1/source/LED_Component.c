@@ -71,12 +71,18 @@ void ledTask(void* pvParameters)
 		xQueueReceive(led_queue, (void *) (&speed), portMAX_DELAY);
 		PRINTF("LED UPDATE\r\n");
 
-		if (abs(speed) <= SPEED_SLOW){
-			colour = COLOUR_SLOW;
-		} else if (abs(speed) >= SPEED_FAST){
-			colour = COLOUR_FAST;
-		} else { // medium speed
-			colour = COLOUR_MEDIUM;
+		switch(speed){
+			case 0:
+				colour = COLOUR_SLOW;
+				break;
+			case 1:
+				colour = COLOUR_MEDIUM;
+				break;
+			case 2:
+				colour = COLOUR_FAST;
+				break;
+			default:
+				colour = COLOUR_SLOW;
 		}
 
 		uint8_t blue  = ((float) (colour & 0x0000FF))        / 0xFF * 100;
@@ -84,9 +90,9 @@ void ledTask(void* pvParameters)
 		uint8_t red   = ((float)((colour & 0xFF0000) >> 16)) / 0xFF * 100;
 
 		// TODO: Push this to the terminal UART queue for being printed out
-		PRINTF("blue\t- %d%%\r\n", blue);
-		PRINTF("green\t- %d%%\r\n", green);
-		PRINTF("red\t- %d%%\r\n", red);
+//		PRINTF("blue\t- %d%%\r\n", blue);
+//		PRINTF("green\t- %d%%\r\n", green);
+//		PRINTF("red\t- %d%%\r\n", red);
 
 		FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_1, kFTM_EdgeAlignedPwm, red);
 		FTM_UpdatePwmDutycycle(FTM3, kFTM_Chnl_4, kFTM_EdgeAlignedPwm, blue);

@@ -193,19 +193,20 @@ void accelerometerTask(void* pvParameters)
 		}
 		/* Get the X and Y data from the sensor data structure in 14 bit left format data*/
 
-		yData = ((int16_t)((uint16_t)((uint16_t)sensorData.accelYMSB << 8) | (uint16_t)	sensorData.accelYLSB)) / 4U;
-		/* Convert raw data to angle (normalize to 0-90 degrees). No negative angles. */
-		yAngle = (int16_t)((double)yData * (double)dataScale * 90 / 8192);
-		compensation.val = 10*yAngle;
-		if(compensation.val != 0){
+		yData = ((int16_t)((uint16_t)((uint16_t)sensorData.accelXMSB << 8) | (uint16_t)	sensorData.accelXLSB)) / 4U;
+		/* Convert raw data to angle (normalize to -45 -> 45 degrees). No negative angles. */
+		yAngle = ((int16_t)((double)yData * (double)dataScale * 90 / 8192) >> 1);
+		compensation.val = yAngle;
+//		PRINTF("angle value = %d\r\n", yAngle);
+		if(abs(yAngle) > 2){
 			status = xQueueSendToBack(motor_queue, (void *) &compensation, portMAX_DELAY);
 			if (status != pdPASS)
 			{
 				PRINTF("Queue Send failed!.\r\n");
 				while (1);
 			}
-			PRINTF("compensation value = %d\r\n", yAngle);
-			sendMessage("compensation value = %d\r\n", yAngle);
+//			PRINTF("angle value = %d\r\n", yAngle);
+			sendMessage("angle value = %d\r\n", yAngle);
 		}else{
 			vTaskDelay(100/portTICK_PERIOD_MS);
 		}

@@ -20,7 +20,7 @@ int main(void)
     setupRCReceiverComponent();
     setupTerminalComponent();
     setupLEDComponent();
-//    setupAccelerometerComponent();
+    setupAccelerometerComponent();
 
     printf("BEGIN\r\n");
 
