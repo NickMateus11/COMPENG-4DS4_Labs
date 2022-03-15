@@ -213,7 +213,7 @@ void terminalControlTask(void* pvParameters)
 		}
 		if ((bits & DOWN_BIT) == DOWN_BIT) {
 			PRINTF("Down\r\n");
-			val_to_send = 50;
+			val_to_send = -50;
 			motor_msg.val = val_to_send;
 			status = xQueueSendToBack(motor_queue,(void*)&motor_msg,portMAX_DELAY);
 			if (status != pdPASS)
