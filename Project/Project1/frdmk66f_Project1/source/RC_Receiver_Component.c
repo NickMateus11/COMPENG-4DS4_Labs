@@ -152,7 +152,7 @@ void rcTask(void* pvParameters)
 				}
 			}
 			else if(rc_values.ch1 == 1500){
-				motor.val = 0;
+				angle = 0;
 				xSemaphoreTake(*rc_hold_semaphore, portMAX_DELAY);
 				status = xQueueSendToBack(angle_queue, (void*) &angle, portMAX_DELAY);
 				xSemaphoreGive(*rc_hold_semaphore);
